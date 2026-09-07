@@ -1,0 +1,197 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import PriceTable from '../components/PriceTable.astro';
+import Section from '../components/Section.astro';
+import { getAddons, getBusiness, getCategories } from '../lib/content';
+
+const business = await getBusiness();
+const categories = await getCategories();
+const addons = await getAddons();
+
+const allPrices = categories.flatMap((category) =>
+  category.data.priceTable.map((row) => row.price),
+);
+const lowPrice = Math.min(...allPrices);
+---
+
+<BaseLayout
+  title="מחירון"
+  description={`מחירון מלא לפי מספר מנות — ${categories.map((c) => c.data.name).join(', ')}, כולל תוספות. המחירים החל מ-${lowPrice} ₪.`}
+>
+  <div class="wrap intro">
+    <h1 class="intro__title">מחירון</h1>
+    <p class="intro__lead">
+      המחירים כאן הם לעיצוב סטנדרטי, והם נקודת הפתיחה. המחיר הסופי נקבע לפי מספר המנות,
+      מורכבות העיצוב והתוספות — ונשלח אליכם בוואטסאפ אחרי שאדע מה האירוע.
+    </p>
+
+    <ul class="terms">
+      <li>
+        זמן התראה: <span class="num">{business.minLeadTimeDays}</span> ימים לפחות, ולעוגות
+        מעוצבות <span class="num">{business.customLeadTimeDays}</span> ימים.
+      </li>
+      {
+        business.minOrderIls > 0 && (
+          <li>
+            מינימום הזמנה:{' '}
+            <span class="num">{business.minOrderIls.toLocaleString('he-IL')}</span> ₪.
+          </li>
+        )
+      }
+      <li>{business.pickupNote}</li>
+      <li>{business.deliveryNote}</li>
+    </ul>
+  </div>
+
+  {
+    categories.map((category, index) => (
+      <Section
+        tone={index % 2 === 0 ? 'deep' : 'cream'}
+        title={category.data.name}
+        lead={category.data.shortDescription}
+      >
+        <PriceTable
+          rows={category.data.priceTable}
+          caption={`מחירון ${category.data.name} לפי מספר מנות`}
+        />
+        <p class="note">
+          החל מ-<span class="num">{category.data.priceFrom.toLocaleString('he-IL')}</span> ₪ ·
+          טעמים: {category.data.flavors.join(' · ')}
+        </p>
+        <p class="more">
+          <a href={`/categories/${category.data.slug}`}>לפרטים על {category.data.name} ←</a>
+        </p>
+      </Section>
+    ))
+  }
+
+  <Section title="תוספות" lead="מחירים קבועים, מתווספים למחיר הבסיס של ההזמנה.">
+    <div class="table-scroll">
+      <table class="addons-table">
+        <caption class="sr-only">מחירון תוספות</caption>
+        <thead>
+          <tr>
+            <th scope="col">תוספת</th>
+            <th scope="col">מה זה כולל</th>
+            <th scope="col">מחיר</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            addons.map((addon) => (
+              <tr>
+                <th scope="row">{addon.data.name}</th>
+                <td>{addon.data.description}</td>
+                <td class="addons-table__price">
+                  <span class="num">{addon.data.price.toLocaleString('he-IL')}</span> ₪
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </Section>
+
+  <Section tone="deep">
+    <div class="closing">
+      <h2 class="closing__title">רוצים מחיר מדויק?</h2>
+      <p class="closing__text">
+        שלחו לי את התאריך, מספר האורחים והסגנון שאתם אוהבים, ואחזור עם הצעת מחיר סופית.
+      </p>
+      <Button href="/order">לקבלת הצעת מחיר</Button>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .intro {
+    padding-block: 2.5rem 1rem;
+  }
+
+  .intro__title {
+    font-size: var(--text-4xl);
+  }
+
+  .intro__lead {
+    margin-block-start: 1rem;
+    max-inline-size: 60ch;
+    color: var(--color-ink-soft);
+    font-size: var(--text-lg);
+  }
+
+  .terms {
+    display: grid;
+    gap: 0.5rem;
+    margin-block-start: 1.75rem;
+    padding-inline-start: 1.25rem;
+    color: var(--color-ink-soft);
+  }
+
+  .note {
+    margin-block-start: 1.25rem;
+    color: var(--color-ink-soft);
+    max-inline-size: 60ch;
+  }
+
+  .more {
+    margin-block-start: 0.75rem;
+  }
+
+  .more a {
+    /* יעד מגע 44px — זהו קישור ניווט עצמאי ולא קישור בתוך משפט */
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+  }
+
+  .addons-table {
+    inline-size: 100%;
+    border-collapse: collapse;
+  }
+
+  .addons-table th,
+  .addons-table td {
+    padding: 0.75rem 0.5rem;
+    text-align: start;
+    vertical-align: top;
+    border-block-end: 1px solid var(--color-line);
+  }
+
+  .addons-table thead th {
+    font-weight: 600;
+    color: var(--color-ink-soft);
+    font-size: 0.9375rem;
+  }
+
+  .addons-table tbody th {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .addons-table__price {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .closing {
+    max-inline-size: 46ch;
+  }
+
+  .closing__title {
+    font-size: var(--text-3xl);
+  }
+
+  .closing__text {
+    margin-block: 0.875rem 2rem;
+    color: var(--color-ink-soft);
+    font-size: var(--text-lg);
+  }
+</style>

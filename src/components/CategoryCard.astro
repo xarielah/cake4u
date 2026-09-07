@@ -1,0 +1,106 @@
+---
+import { Image } from 'astro:assets';
+import type { Category } from '../lib/content';
+
+interface Props {
+  category: Category;
+  /** הכרטיס הראשון בעמוד הבית עשוי להיות ה-LCP */
+  eager?: boolean;
+}
+
+const { category, eager = false } = Astro.props;
+const { data } = category;
+const href = `/categories/${data.slug}`;
+---
+
+<article class="card">
+  <a class="card__link" href={href}>
+    <div class="card__media">
+      {
+        data.coverImage ? (
+          <Image
+            class="card__img"
+            src={data.coverImage}
+            alt={data.coverAlt!}
+            widths={[320, 480, 640]}
+            sizes="(min-width: 64rem) 21rem, (min-width: 48rem) 45vw, 100vw"
+            loading={eager ? 'eager' : 'lazy'}
+            fetchpriority={eager ? 'high' : 'auto'}
+          />
+        ) : (
+          <div class="card__placeholder" aria-hidden="true" />
+        )
+      }
+    </div>
+
+    <div class="card__body">
+      <h3 class="card__title">{data.name}</h3>
+      <p class="card__text">{data.shortDescription}</p>
+      <p class="card__price">
+        החל מ-<span class="num">{data.priceFrom.toLocaleString('he-IL')}</span> ₪
+      </p>
+      <span class="card__more" aria-hidden="true">לפרטים ומחירון ←</span>
+    </div>
+  </a>
+</article>
+
+<style>
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    transition: box-shadow 0.15s ease;
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .card__link {
+    display: block;
+    text-decoration: none;
+    block-size: 100%;
+  }
+
+  .card__media {
+    aspect-ratio: 4 / 3;
+    background-color: var(--color-cream-deep);
+  }
+
+  .card__img,
+  .card__placeholder {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .card__body {
+    padding: 1.25rem;
+  }
+
+  .card__title {
+    font-size: var(--text-xl);
+  }
+
+  .card__text {
+    margin-block-start: 0.5rem;
+    color: var(--color-ink-soft);
+  }
+
+  .card__price {
+    margin-block-start: 0.875rem;
+    font-weight: 800;
+  }
+
+  .card__more {
+    display: inline-block;
+    margin-block-start: 0.75rem;
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .card:hover .card__more {
+    text-decoration: underline;
+  }
+</style>

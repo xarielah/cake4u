@@ -1,0 +1,161 @@
+---
+import { settings } from "../config/site";
+import { getBusiness } from "../lib/content";
+import { generalInquiryUrl, telHref } from "../lib/whatsapp";
+
+const business = await getBusiness();
+const waHref = generalInquiryUrl(business.whatsappNumber, business.ownerName);
+const phoneHref = telHref(business.whatsappNumber);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <p class="footer-brand">{business.businessName}</p>
+      <p class="footer-text">{settings.seo.defaultDescription}</p>
+    </div>
+
+    <div>
+      <h2 class="footer-title">יצירת קשר</h2>
+      <ul class="footer-list">
+        <li>
+          <a href={waHref} target="_blank" rel="noopener noreferrer">
+            וואטסאפ — <span class="num">{business.phoneDisplay}</span>
+          </a>
+        </li>
+        <li>
+          <a href={phoneHref}>חיוג טלפוני</a>
+        </li>
+        <li>
+          <a
+            href={business.social.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            אינסטגרם <span class="num">{business.social.instagramHandle}</span>
+          </a>
+        </li>
+        <li class="footer-muted">זמני מענה: {business.hours.display}</li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="footer-title">אזורי שירות</h2>
+      <p class="footer-text">{business.deliveryAreas.join(" · ")}</p>
+      <p class="footer-muted">{business.pickupNote}</p>
+      <p class="footer-muted">
+        {business.kashrut.status}
+        {
+          business.kashrut.hasCertificate
+            ? ", עם תעודת כשרות"
+            : ", ללא תעודת כשרות"
+        }
+      </p>
+    </div>
+
+    <div>
+      <h2 class="footer-title">באתר</h2>
+      <ul class="footer-list">
+        {
+          settings.nav.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
+        {
+          settings.legalNav.map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="wrap footer-bottom">
+    <p>
+      © <span class="num">{year}</span>
+      {business.businessName}. כל הזכויות שמורות.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-block-start: var(--spacing-section);
+    padding-block-start: 3rem;
+    background-color: var(--color-ink);
+    color: var(--color-cream);
+    border-block-start: 1px solid var(--color-line);
+  }
+
+  .footer-grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .footer-brand {
+    font-weight: 800;
+    font-size: 1.125rem;
+    margin-block-end: 0.5rem;
+  }
+
+  .footer-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-block-end: 0.75rem;
+  }
+
+  .footer-text {
+    color: var(--color-cream);
+  }
+
+  .footer-muted {
+    color: var(--color-cream);
+    font-size: 0.9375rem;
+    margin-block-start: 0.5rem;
+  }
+
+  .footer-list {
+    list-style: none;
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .footer-list a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+    text-decoration: none;
+    color: var(--color-cream);
+  }
+
+  .footer-list a:hover {
+    color: var(--color-cream);
+    text-decoration: underline;
+  }
+
+  .footer-bottom {
+    margin-block-start: 2.5rem;
+    padding-block: 1.25rem;
+    border-block-start: 1px solid var(--color-line);
+    color: var(--color-cream);
+    font-size: 0.9375rem;
+    /* מקום לכפתור הצף */
+    padding-block-end: 5.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .footer-grid {
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+
+    .footer-bottom {
+      padding-block-end: 1.5rem;
+    }
+  }
+</style>

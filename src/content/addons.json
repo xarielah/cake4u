@@ -1,0 +1,47 @@
+[
+  {
+    "id": "photo-print",
+    "name": "הדפסת תמונה על העוגה",
+    "price": 45,
+    "description": "תמונה אכילה באיכות גבוהה על גבי העוגה. שולחים לי את התמונה בוואטסאפ עד שלושה ימים לפני.",
+    "featured": true,
+    "categories": ["celebration-cakes"],
+    "order": 1
+  },
+  {
+    "id": "extra-tier",
+    "name": "קומה נוספת לעוגה",
+    "price": 180,
+    "description": "מוסיפה נוכחות ועוד כ-15 מנות. מומלץ מ-30 אורחים ומעלה.",
+    "featured": true,
+    "categories": ["celebration-cakes"],
+    "order": 2
+  },
+  {
+    "id": "custom-topper",
+    "name": "טופר מותאם אישית",
+    "price": 35,
+    "description": "שם, גיל, ברכה או לוגו — חתוך ומעוצב בהתאמה לצבעי העוגה.",
+    "featured": true,
+    "categories": [],
+    "order": 3
+  },
+  {
+    "id": "gift-wrap",
+    "name": "אריזת מתנה",
+    "price": 25,
+    "description": "אריזה מהודרת עם סרט ופתק ברכה בכתב יד. מתאים למשלוח ישיר למקבל המתנה.",
+    "featured": false,
+    "categories": ["cookie-boxes", "dessert-trays"],
+    "order": 4
+  },
+  {
+    "id": "home-delivery",
+    "name": "משלוח עד הבית",
+    "price": 40,
+    "description": "משלוח באזור עמק יזרעאל והסביבה, בתיאום שעה מראש. המחיר עשוי להשתנות לפי מרחק.",
+    "featured": false,
+    "categories": [],
+    "order": 5
+  }
+]

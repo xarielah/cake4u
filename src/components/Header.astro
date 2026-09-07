@@ -1,0 +1,763 @@
+---
+import { Image } from "astro:assets";
+import { settings } from "../config/site";
+import { getBusiness } from "../lib/content";
+import WhatsAppIcon from "./WhatsAppIcon.astro";
+import { generalInquiryUrl, telHref } from "../lib/whatsapp";
+
+const business = await getBusiness();
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) =>
+  href === path || (href !== "/" && path.startsWith(href));
+
+const phoneHref = telHref(business.whatsappNumber);
+const waHref = generalInquiryUrl(business.whatsappNumber, business.ownerName);
+const areaLabel = `${business.city} ו${business.region}`;
+---
+
+<header class="site-header">
+  <div class="wrap topbar">
+    <button
+      type="button"
+      class="burger"
+      aria-controls="mobile-menu"
+      aria-expanded="false"
+      aria-label="פתיחת התפריט"
+      data-menu-toggle
+    >
+      <span class="burger__bars" aria-hidden="true"></span>
+    </button>
+
+    <ul class="contact" aria-label="פרטי קשר">
+      <li>
+        <a class="contact__link contact__link--phone" href={phoneHref}>
+          <span class="contact__text">{business.phoneDisplay}</span>
+          <svg
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24c1.1.37 2.3.57 3.5.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C11.4 21 3 12.6 3 2.99a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.2.2 2.4.57 3.5a1 1 0 0 1-.25 1l-2.22 2.3Z"
+            ></path>
+          </svg>
+        </a>
+      </li>
+      <li>
+        <a
+          class="contact__link"
+          href={waHref}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <WhatsAppIcon size={24} />
+          <span class="sr-only">שליחת הודעה בוואטסאפ</span>
+        </a>
+      </li>
+    </ul>
+
+    <a class="brand" href="/">
+      <!-- <span class="brand__name">{business.businessName}</span> -->
+      <Image
+        src={business.logo}
+        alt={business.businessName}
+        class="brand__logo"
+        sizes="(max-width: 600px) 160px, 320px"
+        width="200"
+        loading="eager"
+      />
+      <!-- <span class="brand__tagline">{settings.ui.tagline}</span> -->
+    </a>
+  </div>
+
+  <!-- שורת ניווט מרכזית -->
+  <div class="navbar">
+    <nav class="wrap nav" aria-label="ניווט ראשי">
+      <ul class="nav__list">
+        {
+          settings.nav.map((item) => (
+            <li>
+              <a
+                class="nav__link"
+                href={item.href}
+                aria-current={isCurrent(item.href) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a class="nav__link nav__link--cta" href={waHref}
+            ><WhatsAppIcon size={24} />להזמנה בווטסאפ</a
+          >
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- קצה משונן דקורטיבי -->
+  <div class="edge" aria-hidden="true"></div>
+</header>
+
+<!-- נקודת ייחוס: ברגע שהיא יוצאת מהמסך, הסרגל המצומצם נכנס -->
+<div id="header-sentinel" aria-hidden="true"></div>
+
+<div id="sticky-nav" class="stickybar" inert>
+  <div class="wrap stickybar__inner">
+    <a class="stickybar__brand" href="/">
+      <Image
+        src={business.logo}
+        alt={business.businessName}
+        width="200"
+        loading="eager"
+      />
+    </a>
+
+    <button
+      type="button"
+      class="burger burger--sticky"
+      aria-controls="mobile-menu"
+      aria-expanded="false"
+      aria-label="פתיחת התפריט"
+      data-menu-toggle
+    >
+      <span class="burger__bars" aria-hidden="true"></span>
+    </button>
+
+    <nav class="stickybar__nav" aria-label="ניווט מצומצם">
+      <ul class="nav__list">
+        {
+          settings.nav.map((item) => (
+            <li>
+              <a
+                class="nav__link"
+                href={item.href}
+                aria-current={isCurrent(item.href) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="stickybar__cta" href="/order">
+      <WhatsAppIcon size={18} />
+      <span>להזמנה</span>
+    </a>
+  </div>
+</div>
+
+<!-- מגירת הניווט למובייל. מוסתרת לגמרי עד לפתיחה. -->
+<div id="mobile-menu" class="menu" hidden>
+  <div class="menu__backdrop" data-menu-close></div>
+
+  <div
+    class="menu__panel"
+    role="dialog"
+    aria-modal="true"
+    aria-label="תפריט ניווט"
+  >
+    <button
+      type="button"
+      class="menu__close"
+      aria-label="סגירת התפריט"
+      data-menu-close
+    >
+      <svg
+        viewBox="0 0 24 24"
+        width="24"
+        height="24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M6 6 18 18M18 6 6 18"></path>
+      </svg>
+    </button>
+
+    <nav aria-label="ניווט במובייל">
+      <ul class="menu__list">
+        {
+          settings.nav.map((item) => (
+            <li>
+              <a
+                class="menu__link"
+                href={item.href}
+                aria-current={isCurrent(item.href) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="menu__cta" href="/order">
+      <WhatsAppIcon size={20} />
+      <span>להזמנה בוואטסאפ</span>
+    </a>
+
+    <a class="menu__phone" href={phoneHref}>{business.phoneDisplay}</a>
+  </div>
+</div>
+
+<script>
+  const sentinel = document.getElementById("header-sentinel");
+  const bar = document.getElementById("sticky-nav");
+
+  if (sentinel && bar) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // ההדר עדיין בשדה הראייה → הסרגל המצומצם מיותר
+        const show = !entry.isIntersecting;
+        bar.classList.toggle("is-visible", show);
+        bar.toggleAttribute("inert", !show);
+      },
+      { threshold: 0 },
+    );
+
+    observer.observe(sentinel);
+  }
+
+  /* --- מגירת הניווט במובייל --- */
+  const menu = document.getElementById("mobile-menu");
+  const toggles =
+    document.querySelectorAll<HTMLButtonElement>("[data-menu-toggle]");
+
+  if (menu && toggles.length) {
+    const panel = menu.querySelector<HTMLElement>(".menu__panel");
+    const desktop = window.matchMedia("(min-width: 48rem)");
+    let opener: HTMLButtonElement | null = null;
+
+    const setOpen = (open: boolean) => {
+      menu.hidden = !open;
+      // הכיתה מופעלת בפריים הבא כדי שהמעבר יורגש
+      requestAnimationFrame(() => menu.classList.toggle("is-open", open));
+      document.body.style.overflow = open ? "hidden" : "";
+
+      toggles.forEach((btn) => {
+        btn.setAttribute("aria-expanded", String(open));
+        btn.setAttribute("aria-label", open ? "סגירת התפריט" : "פתיחת התפריט");
+      });
+
+      if (open) {
+        panel?.querySelector<HTMLElement>("a, button")?.focus();
+      } else {
+        opener?.focus();
+        opener = null;
+      }
+    };
+
+    toggles.forEach((btn) =>
+      btn.addEventListener("click", () => {
+        const isOpen = btn.getAttribute("aria-expanded") === "true";
+        if (!isOpen) opener = btn;
+        setOpen(!isOpen);
+      }),
+    );
+
+    // סגירה: לחיצה על הרקע, על כפתור הסגירה, או על קישור
+    menu.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement;
+      if (target.closest("[data-menu-close]") || target.closest("a"))
+        setOpen(false);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !menu.hidden) setOpen(false);
+    });
+
+    // מעבר לרוחב דסקטופ בזמן שהתפריט פתוח — סוגרים אותו
+    desktop.addEventListener("change", (event) => {
+      if (event.matches && !menu.hidden) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: relative;
+    z-index: 1;
+    background-color: var(--color-surface);
+  }
+
+  /* --- הסרגל הדביק המצומצם --- */
+  .stickybar {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 50;
+    background-color: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    backdrop-filter: blur(8px);
+    border-block-end: 1px solid var(--color-line);
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      transform 0.22s ease,
+      opacity 0.22s ease,
+      visibility 0s linear 0.22s;
+  }
+
+  .stickybar.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transition:
+      transform 0.22s ease,
+      opacity 0.22s ease,
+      visibility 0s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stickybar,
+    .stickybar.is-visible {
+      transition: opacity 0.01ms;
+      transform: none;
+    }
+  }
+
+  .stickybar__inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 0.375rem;
+  }
+
+  .stickybar__brand {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+  }
+
+  .stickybar__brand :global(img) {
+    block-size: auto;
+    inline-size: auto;
+    max-block-size: 36px;
+  }
+
+  .stickybar__nav {
+    display: none;
+    flex: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .stickybar__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stickybar__nav .nav__list {
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .stickybar__nav .nav__link {
+    min-block-size: 40px;
+    font-size: 0.9375rem;
+  }
+
+  .stickybar__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: none;
+    min-block-size: 44px;
+    padding-inline: 1rem;
+    border-radius: 999px;
+    background-color: var(--color-accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+  }
+
+  .stickybar__cta:hover {
+    background-color: var(--color-accent-deep);
+  }
+
+  /* מובייל צר: יש כפתור וואטסאפ צף — ה-CTA בסרגל מיותר */
+  @media (max-width: 30rem) {
+    .stickybar__cta span {
+      display: none;
+    }
+
+    .stickybar__cta {
+      padding-inline: 0.75rem;
+      min-inline-size: 44px;
+      justify-content: center;
+    }
+  }
+
+  /* --- שורת קשר + לוגו --- */
+  .topbar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 0.25rem;
+    padding-block: 0.5rem 0.625rem;
+  }
+
+  .contact {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .contact__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    min-inline-size: 44px;
+    min-block-size: 44px;
+    text-decoration: none;
+    color: var(--color-ink-soft);
+  }
+
+  .contact__link--phone {
+    padding-inline: 0.375rem;
+    color: var(--color-accent);
+    font-weight: 600;
+    /* המספר נשאר קריא משמאל לימין גם בתוך טקסט עברי */
+    direction: ltr;
+  }
+
+  .contact__text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 0;
+  }
+
+  a.contact__link:hover {
+    color: var(--color-accent-deep);
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .brand__name {
+    font-weight: 800;
+    font-size: 1.5rem;
+    line-height: 1.15;
+  }
+
+  .brand__tagline {
+    font-size: 0.8125rem;
+    color: var(--color-ink-soft);
+  }
+
+  /* --- כפתור המבורגר --- */
+  .burger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 44px;
+    block-size: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-soft);
+    background: none;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  .burger__bars,
+  .burger__bars::before,
+  .burger__bars::after {
+    display: block;
+    inline-size: 22px;
+    block-size: 2px;
+    border-radius: 2px;
+    background-color: currentColor;
+  }
+
+  .burger__bars {
+    position: relative;
+  }
+
+  .burger__bars::before,
+  .burger__bars::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+  }
+
+  .burger__bars::before {
+    inset-block-start: -7px;
+  }
+
+  .burger__bars::after {
+    inset-block-start: 7px;
+  }
+
+  /* בהדר הראשי הכפתור יושב בפינה, בלי להזיז את הלוגו מהמרכז */
+  .topbar > .burger {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0.375rem;
+  }
+
+  .burger--sticky {
+    flex: none;
+    margin-inline-start: auto;
+  }
+
+  /* --- מגירת הניווט במובייל --- */
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+  }
+
+  .menu__backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgb(42 35 32 / 0.45);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .menu.is-open .menu__backdrop {
+    opacity: 1;
+  }
+
+  .menu__panel {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    max-block-size: 100dvh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 1.25rem 1.5rem;
+    background-color: var(--color-surface);
+    border-end-start-radius: var(--radius-card);
+    border-end-end-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-100%);
+    transition: transform 0.22s ease;
+  }
+
+  .menu.is-open .menu__panel {
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu__backdrop,
+    .menu__panel {
+      transition: none;
+    }
+
+    .menu__panel {
+      transform: none;
+    }
+  }
+
+  .menu__close {
+    align-self: start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 44px;
+    block-size: 44px;
+    margin-block-end: 0.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-soft);
+    background: none;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  .menu__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .menu__link {
+    display: flex;
+    align-items: center;
+    min-block-size: 52px;
+    text-decoration: none;
+    color: var(--color-ink);
+    font-size: 1.125rem;
+    font-weight: 600;
+    border-block-end: 1px solid var(--color-line);
+  }
+
+  .menu__link[aria-current="page"] {
+    color: var(--color-accent);
+  }
+
+  .menu__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-block-size: 48px;
+    margin-block-start: 1.25rem;
+    border-radius: 999px;
+    background-color: var(--color-accent);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .menu__phone {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+    margin-block-start: 0.5rem;
+    color: var(--color-accent);
+    font-weight: 600;
+    direction: ltr;
+  }
+
+  /* --- ניווט --- */
+  .navbar {
+    /* במובייל הניווט חי במגירה בלבד */
+    display: none;
+    border-block-start: 1px solid var(--color-line);
+  }
+
+  .nav {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav__list {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav__link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--color-ink-soft);
+    font-size: 1rem;
+  }
+
+  .nav__link:hover,
+  .nav__link[aria-current="page"] {
+    color: var(--color-accent);
+  }
+
+  .nav__link--cta {
+    color: var(--color-accent);
+    font-weight: 600;
+    font-size: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .edge {
+    block-size: 12px;
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--color-cream-deep) 0 24px,
+      color-mix(in srgb, var(--color-cream-deep) 60%, var(--color-cream-deep))
+        24px 48px
+    );
+    -webkit-mask-image: conic-gradient(
+      from 135deg at top,
+      #0000,
+      #000 1deg 89deg,
+      #0000 90deg 360deg
+    );
+    mask-image: conic-gradient(
+      from 135deg at top,
+      #0000,
+      #000 1deg 89deg,
+      #0000 90deg 360deg
+    );
+    -webkit-mask-size: 24px 100%;
+    mask-size: 24px 100%;
+    -webkit-mask-repeat: repeat-x;
+    mask-repeat: repeat-x;
+  }
+
+  @media (min-width: 48rem) {
+    /* דסקטופ: ההמבורגר יוצא מהתמונה, הניווט המלא חוזר */
+    .burger {
+      display: none;
+    }
+
+    .navbar,
+    .stickybar__nav {
+      display: block;
+    }
+
+    .topbar {
+      /* שלוש עמודות: פרטי קשר בצד, הלוגו ממורכז אופטית באמצע */
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding-block: 0.75rem;
+    }
+
+    /* בעברית ההתחלה היא ימין — פרטי הקשר יושבים בקצה השמאלי */
+    .contact {
+      grid-column: 3;
+      grid-row: 1;
+      justify-self: start;
+    }
+
+    .brand {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .brand__name {
+      font-size: 1.75rem;
+    }
+
+    .nav__list {
+      gap: 2rem;
+    }
+
+    .nav__link {
+      font-size: 1.0625rem;
+    }
+
+    .stickybar__nav .nav__list {
+      gap: 1.75rem;
+    }
+
+    .stickybar__nav .nav__link {
+      font-size: 1rem;
+    }
+  }
+</style>

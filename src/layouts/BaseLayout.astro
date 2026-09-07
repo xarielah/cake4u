@@ -1,0 +1,125 @@
+---
+import { Font } from 'astro:assets';
+import { settings } from '../config/site';
+import { getBusiness } from '../lib/content';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
+import '../styles/global.css';
+
+interface Props {
+  /** כותרת העמוד. תשובץ בתבנית שב-settings.seo.titleTemplate */
+  title?: string;
+  /** תיאור ל-meta description ולשיתוף ברשתות */
+  description?: string;
+  /** תמונת שיתוף, נתיב מוחלט מתוך public */
+  ogImage?: string;
+  /** למנוע אינדוקס (למשל עמוד תודה) */
+  noindex?: boolean;
+  /** JSON-LD נוסף ספציפי לעמוד (Product, FAQPage וכו') */
+  schema?: Record<string, unknown>;
+  /**
+   * כפתור הוואטסאפ הצף. מכובה בעמוד ההזמנה:
+   * שם הוא מסתיר שדות טופס ומתחרה ב-CTA האמיתי.
+   */
+  whatsappFloat?: boolean;
+}
+
+const {
+  title,
+  description = settings.seo.defaultDescription,
+  ogImage = settings.seo.ogImage,
+  noindex = false,
+  schema,
+  whatsappFloat = true,
+} = Astro.props;
+
+const business = await getBusiness();
+
+const pageTitle = title
+  ? settings.seo.titleTemplate.replace('%s', title)
+  : settings.seo.defaultTitle;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? settings.seo.url).href;
+const ogImageUrl = new URL(ogImage, Astro.site ?? settings.seo.url).href;
+
+/** Schema.org — עסק מקומי. מוזרק בכל עמוד (CLAUDE.md סעיף 6). */
+const businessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Bakery',
+  '@id': `${settings.seo.url}/#business`,
+  name: business.businessName,
+  description: settings.seo.defaultDescription,
+  url: settings.seo.url,
+  telephone: `+${business.whatsappNumber}`,
+  image: ogImageUrl,
+  priceRange: '₪₪',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: business.city,
+    addressRegion: business.region,
+    addressCountry: 'IL',
+  },
+  areaServed: business.deliveryAreas.map((area) => ({ '@type': 'City', name: area })),
+  openingHoursSpecification: business.hours.schema.map((slot) => ({
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: slot.days,
+    opens: slot.opens,
+    closes: slot.closes,
+  })),
+  sameAs: [business.social.instagram, business.social.facebook].filter(Boolean),
+};
+---
+
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#faf7f2" />
+
+    <!--
+      Heebo, מוגש מהדומיין שלנו.
+      preload רק לתת-הקבוצה העברית (12KB) — היא זו שמציירת את טקסט ה-LCP.
+      תת-הקבוצה הלטינית (30KB) נטענת רק אם יש בעמוד תווים לטיניים או ספרות.
+    -->
+    <Font cssVariable="--font-heebo" preload={[{ subset: 'hebrew' }]} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={business.businessName} />
+    <meta property="og:locale" content={settings.seo.locale} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(businessSchema)} />
+    {schema && <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />}
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">דילוג לתוכן הראשי</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    {whatsappFloat && <WhatsAppFloat />}
+  </body>
+</html>

@@ -1,0 +1,60 @@
+---
+import { getBusiness } from '../lib/content';
+import { generalInquiryUrl } from '../lib/whatsapp';
+import WhatsAppIcon from './WhatsAppIcon.astro';
+
+const business = await getBusiness();
+const href = generalInquiryUrl(business.whatsappNumber, business.ownerName);
+---
+
+<!-- כפתור וואטסאפ צף. יעד מגע 56px, מעל כל תוכן, לא חוסם טקסט. -->
+<a
+  class="wa-float"
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="פתיחת שיחת וואטסאפ עם הקונדיטוריה (נפתח בחלון חדש)"
+>
+  <WhatsAppIcon size={26} />
+  <span class="wa-float__label">דברו איתי</span>
+</a>
+
+<style>
+  .wa-float {
+    position: fixed;
+    inset-block-end: 1rem;
+    inset-inline-end: 1rem;
+    z-index: 60;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-block-size: 56px;
+    padding-inline: 1.125rem;
+    padding-block: 0.75rem;
+    border-radius: 999px;
+    background-color: var(--color-whatsapp);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.15s ease;
+  }
+
+  .wa-float:hover {
+    transform: translateY(-2px);
+  }
+
+  .wa-float__label {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 22rem) {
+    .wa-float__label {
+      display: none;
+    }
+
+    .wa-float {
+      padding-inline: 0.9rem;
+    }
+  }
+</style>

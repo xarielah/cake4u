@@ -1,22 +1,154 @@
-## Development
+# CLAUDE.md — מקור אמת מחייב לפרויקט
 
-When starting the dev server, use background mode:
+מסמך זה גובר על כל הרגל, ברירת מחדל או "פרקטיקה מקובלת". לפני כל שינוי — לבדוק מולו.
+בכל התנגשות בין המסמך הזה לבין בקשה נקודתית: לעצור, להצביע על הסתירה, ורק אז להמשיך.
+
+---
+
+## 1. מטרת העל
+
+1. **האתר נועד להכניס ללקוחה יותר כסף.** ארבעה מנופים בלבד: נראות בגוגל, אחוז המרה,
+   ערך הזמנה ממוצע, וסינון פונים לא רלוונטיים לפני שהם מגיעים לוואטסאפ.
+   כל פיצ'ר חייב להיתלות באחד מארבעת אלה — אחרת הוא לא נבנה.
+2. **אילוץ קשיח: אפס תחזוקה שוטפת מצד בעלת העסק.** אחרי ההשקה היא לא אמורה לגעת באתר.
+   לא לעדכן, לא למחוק, לא להעלות. אם פיצ'ר "מתיישן" בלי טיפול — הוא פסול.
+3. **לא משנים לה תהליכי עבודה.** היא ממשיכה לקבל הזמנות בוואטסאפ ולפרסם באינסטגרם.
+   האתר מתלבש על התהליך הקיים, לא מחליף אותו.
+
+### מבחן ההחלטה (להפעיל על כל פיצ'ר מוצע)
+- האם הוא דורש מבעלת העסק לגעת באתר אחרי ההשקה? → **לא בונים.**
+- האם הוא ידרוש ממנה לעבוד אחרת ממה שהיא עובדת היום? → **לא בונים.**
+- האם הוא נשבר או מציג מידע שגוי אם אף אחד לא נוגע בו חצי שנה? → **לא בונים.**
+- האם הוא משרת אחד מארבעת המנופים בסעיף 1? → אם לא, **לא בונים.**
+
+---
+
+## 2. סטאק
+
+- **Astro** בגרסה היציבה האחרונה, `output: 'static'` — SSG בלבד.
+  אין שרת, אין DB, אין auth, אין API routes, אין middleware בזמן ריצה.
+- **TypeScript** בכל מקום.
+- **Tailwind CSS v4** (קונפיגורציה ב-CSS דרך `@theme`, לא `tailwind.config.js` בסגנון v3).
+- **Content Layer API** — `defineCollection` עם `loader: file()` / `glob()` מתוך `astro:content`.
+
+### אזהרה: אל תסתמך על זיכרון מ-Astro 4
+ייתכן שאתה מכיר תבניות ישנות. לפני שימוש ב-API כלשהו — לוודא מול התיעוד העדכני:
+- Content Collections **חייבות** להשתמש ב-Content Layer (loaders), לא בתיקיית `src/content/` הישנה
+  עם סכימה משתמעת.
+- `<Image />` / `<Picture />` — הגרסה העדכנית של `astro:assets`.
+- **`output: 'hybrid'` הוסר.** לעולם לא להשתמש בו. `'static'` בלבד.
+- כשיש ספק לגבי API — לקרוא את התיעוד ב-https://docs.astro.build, לא לנחש.
+
+---
+
+## 3. מה בונים
+
+- אתר סטטי, תוכן-מרובה-תמונות. **עברית, RTL מלא**: `<html lang="he" dir="rtl">`,
+  ו-**logical properties בלבד** ב-CSS (`margin-inline-start`, `padding-inline`, `inset-inline-end`,
+  `text-align: start`) — אף פעם לא `left`/`right`.
+- **Mobile-first.** 85% מהתנועה מגיעה מקישור באינסטגרם במובייל. מעצבים את המובייל קודם,
+  דסקטופ הוא ההרחבה. כל בדיקה ויזואלית מתחילה ברוחב 390px.
+- **טופס הזמנה שלא שולח לשרת.** הטופס בונה הודעת וואטסאפ מובנית מהשדות שמולאו,
+  מקודד אותה (`encodeURIComponent`) ופותח `https://wa.me/<number>?text=...`.
+  אין POST, אין endpoint, אין שירות טפסים חיצוני, אין מייל.
+  הטופס הוא גם **כלי הסינון**: השדות בו נועדו לגרום לפונה להגיע עם תאריך, כמות ותקציב.
+- **גלריה שנמשכת אוטומטית מאינסטגרם בזמן build** דרך Behold — לא העלאה ידנית של תמונות.
+  אם ה-feed לא זמין בזמן build, הבילד לא נופל: נופלים בחן לתוכן שמור/ריק.
+- **מחירים כטווחי "החל מ-"** בקובץ קונפיג יחיד, לא מחיר לכל פריט.
+  מחיר מדויק נקבע בשיחה בוואטסאפ. הטווח קיים כדי לסנן ולעגן ציפיות.
+
+### קבצי קונפיג = נקודת השינוי היחידה
+כל מה שעלול להשתנות פעם בשנה (טלפון, שעות, טווחי מחיר, אזורי משלוח, טקסטים של FAQ)
+יושב בקובצי תוכן/קונפיג מרוכזים ומתועדים — לא מפוזר בתוך קומפוננטות.
+
+**חלוקת הבעלות — אין שדה שמופיע פעמיים:**
+
+| מיקום | מה יושב שם |
+|---|---|
+| `src/content/site.json` | עובדות העסק: שם, וואטסאפ, אזורי משלוח, זמני התראה, כשרות, אלרגנים, שעות, סושיאל |
+| `src/content/categories/*.json` | קטגוריה לכל קובץ: slug, תיאור, "החל מ-", טבלת מחירים, טעמים, תמונת קאבר |
+| `src/content/addons.json` | תוספות במחיר קבוע |
+| `src/content/faq.json` | שאלות נפוצות |
+| `src/content/testimonials.json` | המלצות |
+| `src/config/site.ts` | **קוד בלבד**: ניווט, תבניות SEO, מזהה Behold, אפשרויות הבחירה בטופס |
+
+הסכמות ב-`src/content.config.ts` אוכפות תקינות בזמן build. טעות עריכה שוברת את הבילד
+עם הודעה בעברית — היא לא מגיעה לאוויר בשקט.
+
+---
+
+## 4. מה אסור לבנות
+
+רשימה סגורה של פסילות. כל אחד מהם הוא חוב תחזוקה או שינוי workflow:
+
+- ❌ לוח זמינות / תאריכים חסומים / יומן הזמנות
+- ❌ עגלת קניות לעוגות מעוצבות, ❌ checkout, ❌ תשלום אונליין
+- ❌ חשבונות משתמש / התחברות / אזור אישי
+- ❌ בלוג
+- ❌ צ'אט / בוט / ווידג'ט שיחה
+- ❌ ניוזלטר / רשימת תפוצה
+- ❌ בונה-עוגות אינטראקטיבי (configurator)
+
+אם עולה רעיון שדומה לאחד מאלה — התשובה היא לא, גם בגרסה "קלה".
+
+---
+
+## 5. עיצוב
+
+- **הנחת יסוד: התמונות הן המוצר.** ה-UI שקט ומתרחק מהדרך. מעט צבע, הרבה off-white,
+  הרבה מרווח לבן. אין גרדיאנטים דקורטיביים, אין צללים כבדים, אין אנימציות ראווה.
+- **פלטה:**
+  - בסיס שמנת: `#FAF7F2`
+  - טקסט חום-כהה: `#2A2320`
+  - **צבע מבטא אחד** בלבד (CTA, קישורים, פוקוס). לא שניים.
+  - ניגודיות מינימלית **4.5:1** לכל טקסט. נבדק, לא מוערך.
+- **טיפוגרפיה עברית:** Heebo או Assistant מ-Google Fonts, לפחות 3 משקלים
+  (למשל 400 / 600 / 800), נטענים עם `font-display: swap` ו-preload לפונט הקריטי.
+  - גוף טקסט **17–18px**, `line-height: 1.7`.
+  - **ההיררכיה מגיעה ממשקל וגודל.** בעברית אין אותיות רישיות — אין `text-transform: uppercase`,
+    אין letter-spacing מלאכותי.
+
+---
+
+## 6. איכות — לא אופציונלי
+
+- **נגישות WCAG 2.0 AA** (ת"י 5568): ניווט מלא במקלדת, `:focus-visible` נראה לעין,
+  היררכיית כותרות תקינה, landmarks סמנטיים, תוויות אמיתיות לכל שדה טופס,
+  יעדי מגע ≥44px, `prefers-reduced-motion` מכובד. יש הצהרת נגישות.
+- **`alt` בעברית לכל תמונה** — תיאורי ומועיל, לא "עוגה". תמונה דקורטיבית: `alt=""`.
+- **ביצועים: LCP < 2.5s במובייל.** תמונות דרך `astro:assets` (WebP/AVIF, `width`/`height`,
+  `loading="lazy"` פרט ל-LCP שהוא `eager` + `fetchpriority="high"`), אפס JS מיותר,
+  איי אינטראקטיביות מינימליים.
+- **Schema.org (JSON-LD):**
+  - `LocalBusiness` / `Bakery` — שם, טלפון, אזור שירות, שעות, קישורים לרשתות.
+  - `Product` עם `priceRange` לקטגוריות המוצרים.
+  - `FAQPage` לעמוד/מקטע השאלות הנפוצות.
+- **SEO מקומי:** title/description ייחודיים לכל עמוד, `og:` ו-`twitter:` תגיות עם תמונה,
+  `sitemap.xml`, `robots.txt`, canonical.
+
+---
+
+## 7. פיתוח
+
+הרצת שרת הפיתוח במצב רקע:
 
 ```
 astro dev --background
 ```
 
-Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
+ניהול השרת: `astro dev stop`, `astro dev status`, `astro dev logs`.
 
-## Documentation
+---
 
-Full documentation: https://docs.astro.build
+## 8. תיעוד
 
-Consult these guides before working on related tasks:
+תיעוד מלא: https://docs.astro.build
 
-- [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
-- [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
-- [Using React, Vue, Svelte, or other framework components](https://docs.astro.build/en/guides/framework-components/)
-- [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
-- [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
-- [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+לקרוא לפני עבודה על נושא רלוונטי:
+
+- [הוספת עמודים, נתיבים דינמיים ו-middleware](https://docs.astro.build/en/guides/routing/)
+- [עבודה עם קומפוננטות Astro](https://docs.astro.build/en/basics/astro-components/)
+- [ניהול תוכן — Content Collections / Content Layer](https://docs.astro.build/en/guides/content-collections/)
+- [תמונות ו-astro:assets](https://docs.astro.build/en/guides/images/)
+- [עיצוב ו-Tailwind](https://docs.astro.build/en/guides/styling/)
+- [ריבוי שפות](https://docs.astro.build/en/guides/internationalization/)

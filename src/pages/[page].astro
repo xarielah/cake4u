@@ -1,0 +1,180 @@
+---
+import type { GetStaticPaths } from "astro";
+import { Image } from "astro:assets";
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Button from "../components/Button.astro";
+import Section from "../components/Section.astro";
+import { getBusiness, type Page } from "../lib/content";
+import { generalInquiryUrl } from "../lib/whatsapp";
+
+/**
+ * עמודי התוכן הסטטיים: עליי, תקנון, פרטיות, נגישות.
+ * כולם נובעים מאותה קולקשן — להוסיף עמוד = להוסיף קובץ Markdown.
+ */
+export const getStaticPaths = (async () => {
+  const pages = await getCollection("pages");
+  return pages.map((page) => ({ params: { page: page.id }, props: { page } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: Page;
+}
+
+const { page } = Astro.props;
+const { Content } = await render(page);
+
+const business = await getBusiness();
+const waHref = generalInquiryUrl(business.whatsappNumber, business.ownerName);
+
+const updatedLabel = page.data.updated
+  ? new Intl.DateTimeFormat("he-IL", { dateStyle: "long" }).format(
+      page.data.updated,
+    )
+  : null;
+---
+
+<BaseLayout
+  title={page.data.title}
+  description={page.data.description}
+  noindex={page.data.noindex}
+>
+  <Section tone="deep">
+    <div class="wrap head">
+      <h1 class="head__title">{page.data.title}</h1>
+      {
+        updatedLabel && (
+          <p class="head__updated">
+            עודכן לאחרונה:{" "}
+            <time datetime={page.data.updated!.toISOString().slice(0, 10)}>
+              {updatedLabel}
+            </time>
+          </p>
+        )
+      }
+    </div>
+  </Section>
+
+  {
+    page.data.image && (
+      <div class="wrap">
+        <Image
+          class="head__img"
+          src={page.data.image}
+          alt={page.data.imageAlt!}
+          widths={[480, 720, 1080]}
+          sizes="(min-width: 48rem) 42rem, 100vw"
+          loading="eager"
+          style="margin: 0 auto;"
+          fetchpriority="high"
+        />
+      </div>
+    )
+  }
+
+  <div class="wrap prose">
+    <Content />
+  </div>
+
+  <Section tone="deep">
+    <div class="closing">
+      <div>
+        <h2 class="closing__title">אני זמינה לשאלות!</h2>
+        <span
+          >לכל שאלה, בירור או בקשה, אני זמינה בווטסאפ כדי לסייע לכם בבחירת המתוק
+          שמתאים לכם.</span
+        >
+      </div>
+      <Button href={waHref} variant="whatsapp" external>לשליחת הודעה</Button>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .head__title {
+    font-size: var(--text-4xl);
+  }
+
+  .head__updated {
+    margin-block-start: 0.75rem;
+    color: var(--color-ink-soft);
+    font-size: 0.9375rem;
+  }
+
+  .head__img {
+    inline-size: 100%;
+    block-size: auto;
+    max-inline-size: 42rem;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-card);
+    margin-block-end: 2rem;
+  }
+
+  /* עיצוב ה-Markdown. global כי ה-HTML נוצר בזמן build ולא נושא את ה-scope. */
+  .prose {
+    max-inline-size: 42rem;
+    padding-block-end: 1rem;
+  }
+
+  .prose :global(h2) {
+    margin-block: 2.5rem 0.875rem;
+    font-size: var(--text-2xl);
+  }
+
+  .prose :global(h3) {
+    margin-block: 1.75rem 0.625rem;
+    font-size: var(--text-xl);
+  }
+
+  .prose :global(p) {
+    margin-block-end: 1.125rem;
+    color: var(--color-ink-soft);
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin-block-end: 1.125rem;
+    padding-inline-start: 1.25rem;
+    color: var(--color-ink-soft);
+  }
+
+  .prose :global(li) {
+    margin-block-end: 0.5rem;
+  }
+
+  .prose :global(strong) {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  .prose :global(a) {
+    color: var(--color-accent);
+  }
+
+  .closing {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .closing__title {
+    font-size: var(--text-3xl);
+  }
+
+  .closing__text {
+    margin-block: 0.875rem 2rem;
+    color: var(--color-ink-soft);
+    font-size: var(--text-lg);
+  }
+
+  @media (max-width: 48rem) {
+    .closing {
+      flex-direction: column;
+      text-align: center;
+      max-inline-size: 46ch;
+      margin: 0 auto;
+      gap: 1rem;
+    }
+  }
+</style>

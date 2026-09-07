@@ -1,0 +1,328 @@
+---
+import { Image } from "astro:assets";
+import type { Category } from "../lib/content";
+
+interface Props {
+  category: Category;
+  /** הקטגוריה הראשונה — התמונה הראשונה שלה עשויה להיות ה-LCP */
+  eager?: boolean;
+}
+
+const { category, eager = false } = Astro.props;
+const { data } = category;
+const href = `/categories/${data.slug}`;
+
+/** תמונת הקאבר ראשונה, אחריה תמונות הגלריה — כולן עם alt בעברית */
+const slides = [
+  ...(data.coverImage ? [{ image: data.coverImage, alt: data.coverAlt! }] : []),
+  ...data.gallery,
+];
+---
+
+<section class="cat-row" aria-labelledby={`cat-${data.slug}`}>
+  <div class="cat-row__inner">
+    <div class="cat-row__text">
+      <h3 class="cat-row__title" id={`cat-${data.slug}`}>{data.name}</h3>
+      <p class="cat-row__desc">{data.shortDescription}</p>
+      <p class="cat-row__desc">{data.description}</p>
+    </div>
+
+    {
+      slides.length > 0 && (
+        <div class="carousel" data-carousel>
+          <div class="carousel__viewport" data-viewport>
+            {slides.map((slide, i) => (
+              <div class="carousel__slide" data-slide={i}>
+                <Image
+                  class="carousel__img"
+                  src={slide.image}
+                  alt={slide.alt}
+                  widths={[400, 640, 900]}
+                  sizes="(min-width: 64rem) 34rem, (min-width: 48rem) 55vw, 100vw"
+                  loading={eager && i === 0 ? "eager" : "lazy"}
+                  fetchpriority={eager && i === 0 ? "high" : "auto"}
+                />
+              </div>
+            ))}
+          </div>
+
+          {slides.length > 1 && (
+            <>
+              <button
+                type="button"
+                class="carousel__nav carousel__nav--prev"
+                data-prev
+                aria-label={`תמונה קודמת בגלריה של ${data.name}`}
+              >
+                <span aria-hidden="true">‹</span>
+              </button>
+              <button
+                type="button"
+                class="carousel__nav carousel__nav--next"
+                data-next
+                aria-label={`תמונה הבאה בגלריה של ${data.name}`}
+              >
+                <span aria-hidden="true">›</span>
+              </button>
+
+              <div
+                class="carousel__dots"
+                aria-label={`בחירת תמונה בגלריה של ${data.name}`}
+              >
+                {slides.map((_, i) => (
+                  <button
+                    type="button"
+                    class="carousel__dot"
+                    data-dot={i}
+                    aria-label={`מעבר לתמונה ${i + 1} מתוך ${slides.length}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .cat-row {
+    padding-block: 2.75rem;
+    border-block-start: 1px solid var(--color-line);
+  }
+
+  .cat-row__inner {
+    display: grid;
+    gap: 1.75rem;
+  }
+
+  .cat-row__title {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+  }
+
+  .cat-row__desc {
+    margin-block-start: 0.625rem;
+    max-inline-size: 46ch;
+    color: var(--color-ink-soft);
+    font-size: var(--text-lg);
+  }
+
+  .cat-row__price {
+    margin-block-start: 0.875rem;
+    font-weight: 800;
+  }
+
+  .cat-row__link {
+    display: inline-block;
+    margin-block-start: 0.75rem;
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .cat-row__link:hover {
+    text-decoration: underline;
+  }
+
+  /* --- הקרוסלה --- */
+  .carousel {
+    position: relative;
+  }
+
+  .carousel__viewport {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    border-radius: var(--radius-card);
+    background-color: var(--color-cream-deep);
+  }
+
+  .carousel__viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carousel__slide {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+  }
+
+  .carousel__img {
+    inline-size: 100%;
+    block-size: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .carousel__nav {
+    position: absolute;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 44px;
+    block-size: 44px;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background-color: rgb(255 255 255 / 0.9);
+    color: var(--color-ink);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .carousel__nav:hover {
+    background-color: var(--color-surface);
+  }
+
+  .carousel__nav--prev {
+    inset-inline-start: 0.625rem;
+  }
+
+  .carousel__nav--next {
+    inset-inline-end: 0.625rem;
+  }
+
+  .carousel__dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-block-start: 0.875rem;
+  }
+
+  .carousel__dot {
+    inline-size: 8px;
+    block-size: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background-color: var(--color-line);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  /* יעד מגע 44px בלי להגדיל את הנקודה עצמה */
+  .carousel__dot::before {
+    content: "";
+    display: block;
+    inline-size: 44px;
+    block-size: 44px;
+    margin: -18px;
+  }
+
+  .carousel__dot[aria-current="true"] {
+    background-color: var(--color-accent);
+  }
+
+  @media (min-width: 48rem) {
+    .cat-row {
+      padding-block: 3.5rem;
+    }
+
+    .cat-row__inner {
+      grid-template-columns: 1fr 34rem;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    /* לסירוגין: טקסט מימין / שמאל בשורות זוגיות */
+    .cat-row:nth-of-type(even) .cat-row__text {
+      order: 2;
+    }
+  }
+</style>
+
+<script>
+  const AUTOPLAY_MS = 5000;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function initCarousel(root: HTMLElement) {
+    const viewport = root.querySelector<HTMLElement>("[data-viewport]");
+    if (!viewport) return;
+    const slides = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-slide]"),
+    );
+    const dots = Array.from(root.querySelectorAll<HTMLElement>("[data-dot]"));
+    if (slides.length < 2) return;
+
+    let current = 0;
+    let timer: number | undefined;
+
+    const behavior: ScrollBehavior = reduceMotion.matches ? "auto" : "smooth";
+    const rtl = getComputedStyle(viewport).direction === "rtl" ? -1 : 1;
+
+    // גלילה של אזור הקרוסלה בלבד — לא scrollIntoView, שמזיז את העמוד כולו
+    const goTo = (index: number) => {
+      current = (index + slides.length) % slides.length;
+      viewport.scrollTo({
+        left: viewport.clientWidth * current * rtl,
+        behavior,
+      });
+    };
+
+    const setActive = (index: number) => {
+      current = index;
+      dots.forEach((dot, i) =>
+        dot.setAttribute("aria-current", i === index ? "true" : "false"),
+      );
+    };
+
+    const stop = () => {
+      if (timer) window.clearInterval(timer);
+      timer = undefined;
+    };
+
+    const start = () => {
+      stop();
+      if (reduceMotion.matches) return;
+      timer = window.setInterval(() => goTo(current + 1), AUTOPLAY_MS);
+    };
+
+    // מעקב אחרי השקופית הנראית ביותר לעדכון הנקודות
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+            setActive(slides.indexOf(entry.target as HTMLElement));
+          }
+        }
+      },
+      { root: viewport, threshold: [0.6] },
+    );
+    slides.forEach((slide) => observer.observe(slide));
+
+    root.querySelector("[data-prev]")?.addEventListener("click", () => {
+      goTo(current - 1);
+      start();
+    });
+    root.querySelector("[data-next]")?.addEventListener("click", () => {
+      goTo(current + 1);
+      start();
+    });
+    dots.forEach((dot, i) =>
+      dot.addEventListener("click", () => {
+        goTo(i);
+        start();
+      }),
+    );
+
+    root.addEventListener("pointerenter", stop);
+    root.addEventListener("pointerleave", start);
+    root.addEventListener("focusin", stop);
+    root.addEventListener("focusout", start);
+    document.addEventListener("visibilitychange", () =>
+      document.hidden ? stop() : start(),
+    );
+    reduceMotion.addEventListener("change", start);
+
+    setActive(0);
+    start();
+  }
+
+  document
+    .querySelectorAll<HTMLElement>("[data-carousel]")
+    .forEach((el) => initCarousel(el));
+</script>

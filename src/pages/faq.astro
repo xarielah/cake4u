@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import Section from '../components/Section.astro';
+import { getBusiness, getFaq } from '../lib/content';
+import { generalInquiryUrl } from '../lib/whatsapp';
+
+const business = await getBusiness();
+const faq = await getFaq();
+const waHref = generalInquiryUrl(business.whatsappNumber, business.ownerName);
+
+/** Schema.org FAQPage (CLAUDE.md סעיף 6) */
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((entry) => ({
+    '@type': 'Question',
+    name: entry.data.question,
+    acceptedAnswer: { '@type': 'Answer', text: entry.data.answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="שאלות נפוצות"
+  description="כמה זמן מראש להזמין, כשרות, אלרגנים, מחירים, משלוח ותשלום — כל מה שכדאי לדעת לפני שמזמינים."
+  schema={faqSchema}
+>
+  <div class="wrap intro">
+    <h1 class="intro__title">שאלות נפוצות</h1>
+    <p class="intro__lead">
+      רוב מה שנשאלתי לאורך השנים מרוכז כאן. אם נשאר משהו פתוח — שלחו הודעה ואענה.
+    </p>
+  </div>
+
+  <div class="wrap faq">
+    {
+      faq.map((entry) => (
+        <details class="qa" name="faq">
+          <summary class="qa__q">{entry.data.question}</summary>
+          <div class="qa__a">
+            <p>{entry.data.answer}</p>
+          </div>
+        </details>
+      ))
+    }
+  </div>
+
+  <Section tone="deep">
+    <div class="closing">
+      <h2 class="closing__title">לא מצאתם תשובה?</h2>
+      <p class="closing__text">
+        אפשר לשאול אותי ישירות בוואטסאפ. אני עונה {business.hours.display}.
+      </p>
+      <Button href={waHref} variant="whatsapp" external>לשאלה בוואטסאפ</Button>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .intro {
+    padding-block: 2.5rem 1.5rem;
+  }
+
+  .intro__title {
+    font-size: var(--text-4xl);
+  }
+
+  .intro__lead {
+    margin-block-start: 1rem;
+    max-inline-size: 52ch;
+    color: var(--color-ink-soft);
+    font-size: var(--text-lg);
+  }
+
+  .faq {
+    padding-block-end: 1rem;
+    max-inline-size: 52rem;
+  }
+
+  .qa {
+    border-block-end: 1px solid var(--color-line);
+  }
+
+  /* summary נגיש: יעד מגע גדול, סמן משלנו במקום ברירת המחדל של הדפדפן */
+  .qa__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-block-size: 56px;
+    padding-block: 1rem;
+    font-size: var(--text-lg);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .qa__q::-webkit-details-marker {
+    display: none;
+  }
+
+  .qa__q::after {
+    content: '+';
+    color: var(--color-accent);
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  .qa[open] .qa__q::after {
+    content: '−';
+  }
+
+  .qa__a {
+    padding-block-end: 1.25rem;
+    max-inline-size: 60ch;
+    color: var(--color-ink-soft);
+  }
+
+  .closing {
+    max-inline-size: 46ch;
+  }
+
+  .closing__title {
+    font-size: var(--text-3xl);
+  }
+
+  .closing__text {
+    margin-block: 0.875rem 2rem;
+    color: var(--color-ink-soft);
+    font-size: var(--text-lg);
+  }
+</style>

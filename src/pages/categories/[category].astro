@@ -1,0 +1,338 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Button from '../../components/Button.astro';
+import PriceTable from '../../components/PriceTable.astro';
+import Section from '../../components/Section.astro';
+import { settings } from '../../config/site';
+import { getAddonsForCategory, getBusiness, getCategories, type Category } from '../../lib/content';
+
+export const getStaticPaths = (async () => {
+  const categories = await getCategories();
+  return categories.map((category) => ({
+    params: { category: category.data.slug },
+    props: { category },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  category: Category;
+}
+
+const { category } = Astro.props;
+const { data } = category;
+
+const business = await getBusiness();
+const addons = await getAddonsForCategory(category.id);
+
+/** זמן ההתראה של הקטגוריה, ואם לא הוגדר — ברירת המחדל של העסק */
+const leadTimeDays = data.leadTimeDays ?? business.minLeadTimeDays;
+
+const prices = data.priceTable.map((row) => row.price);
+const lowPrice = Math.min(...prices);
+const highPrice = Math.max(...prices);
+
+/** Schema.org Product עם טווח מחירים (CLAUDE.md סעיף 6) */
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: data.name,
+  description: data.shortDescription,
+  url: new URL(`/categories/${data.slug}`, Astro.site ?? settings.seo.url).href,
+  brand: { '@type': 'Brand', name: business.businessName },
+  offers: {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'ILS',
+    lowPrice,
+    highPrice,
+    availability: 'https://schema.org/InStock',
+    seller: { '@id': `${settings.seo.url}/#business` },
+  },
+};
+---
+
+<BaseLayout title={data.name} description={data.shortDescription} schema={productSchema}>
+  <article>
+    <div class="wrap intro">
+      <nav class="crumbs" aria-label="מסלול ניווט">
+        <a href="/">דף הבית</a>
+        <span aria-hidden="true">›</span>
+        <a href="/#categories">מה אני מכינה</a>
+      </nav>
+
+      <h1 class="intro__title">{data.name}</h1>
+      <p class="intro__lead">{data.description}</p>
+
+      <dl class="facts">
+        <div class="fact">
+          <dt>מחיר</dt>
+          <dd>
+            החל מ-<span class="num">{data.priceFrom.toLocaleString('he-IL')}</span> ₪
+          </dd>
+        </div>
+        <div class="fact">
+          <dt>זמן התראה</dt>
+          <dd><span class="num">{leadTimeDays}</span> ימים לפחות</dd>
+        </div>
+        <div class="fact">
+          <dt>כשרות</dt>
+          <dd>{business.kashrut.status}</dd>
+        </div>
+      </dl>
+
+      <div class="intro__actions">
+        <Button href={`/order?category=${data.slug}`}>להזמנת {data.name}</Button>
+        <Button href="/pricing" variant="ghost">למחירון המלא</Button>
+      </div>
+    </div>
+
+    {
+      (data.coverImage || data.gallery.length > 0) && (
+        <div class="wrap gallery">
+          <h2 class="sr-only">תמונות {data.name}</h2>
+          {data.coverImage && (
+            <Image
+              class="gallery__img gallery__img--lead"
+              src={data.coverImage}
+              alt={data.coverAlt!}
+              widths={[480, 720, 1080]}
+              sizes="(min-width: 48rem) 60vw, 100vw"
+              loading="eager"
+              fetchpriority="high"
+            />
+          )}
+          {data.gallery.map((item) => (
+            <Image
+              class="gallery__img"
+              src={item.image}
+              alt={item.alt}
+              widths={[320, 480, 720]}
+              sizes="(min-width: 48rem) 30vw, 50vw"
+              loading="lazy"
+            />
+          ))}
+        </div>
+      )
+    }
+
+    <Section tone="deep" title="מחירון לפי מספר מנות">
+      <PriceTable rows={data.priceTable} caption={`מחירון ${data.name} לפי מספר מנות`} />
+      <p class="note">
+        המחירים הם לעיצוב סטנדרטי. עיצוב מורכב, קומות נוספות ותוספות מתומחרים בנפרד.
+        {
+          business.minOrderIls > 0 && (
+            <span>
+              {' '}מינימום הזמנה:{' '}
+              <span class="num">{business.minOrderIls.toLocaleString('he-IL')}</span> ₪.
+            </span>
+          )
+        }
+      </p>
+    </Section>
+
+    <Section title="טעמים לבחירה">
+      <ul class="flavors">
+        {data.flavors.map((flavor) => <li class="flavor">{flavor}</li>)}
+      </ul>
+      <p class="note">{business.allergens.statement}</p>
+    </Section>
+
+    {
+      addons.length > 0 && (
+        <Section tone="deep" title="תוספות אפשריות">
+          <ul class="addons">
+            {addons.map((addon) => (
+              <li class="addon">
+                <div>
+                  <h3 class="addon__name">{addon.data.name}</h3>
+                  <p class="addon__desc">{addon.data.description}</p>
+                </div>
+                <p class="addon__price">
+                  <span class="num">{addon.data.price.toLocaleString('he-IL')}</span> ₪
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )
+    }
+
+    <Section>
+      <div class="closing">
+        <h2 class="closing__title">מוכנים להזמין {data.name}?</h2>
+        <p class="closing__text">
+          שלחו הודעה עם התאריך ומספר האורחים. ההודעה תגיע אליי כשהקטגוריה שבחרתם כבר מסומנת בה,
+          ואחזור עם מחיר וזמינות תוך <span class="num">24</span> שעות.
+        </p>
+        <Button href={`/order?category=${data.slug}`}>להזמנת {data.name}</Button>
+      </div>
+    </Section>
+  </article>
+</BaseLayout>
+
+<style>
+  .intro {
+    padding-block: 2.5rem 2rem;
+  }
+
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-ink-soft);
+    font-size: 0.9375rem;
+    margin-block-end: 1.25rem;
+  }
+
+  .crumbs a {
+    /* יעד מגע 44px גם לקישור טקסט עצמאי (WCAG 2.5.5) */
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+    color: inherit;
+  }
+
+  .crumbs a:hover {
+    color: var(--color-accent);
+  }
+
+  .intro__title {
+    font-size: var(--text-4xl);
+  }
+
+  .intro__lead {
+    margin-block-start: 1rem;
+    max-inline-size: 60ch;
+    color: var(--color-ink-soft);
+    font-size: var(--text-lg);
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 2.5rem;
+    margin-block-start: 2rem;
+    padding-block: 1.25rem;
+    border-block: 1px solid var(--color-line);
+  }
+
+  .fact dt {
+    color: var(--color-ink-soft);
+    font-size: 0.9375rem;
+  }
+
+  .fact dd {
+    margin: 0.25rem 0 0;
+    font-weight: 600;
+  }
+
+  .intro__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block-start: 2rem;
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .gallery__img {
+    inline-size: 100%;
+    block-size: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: var(--radius-soft);
+  }
+
+  .gallery__img--lead {
+    grid-column: 1 / -1;
+    aspect-ratio: 3 / 2;
+  }
+
+  .note {
+    margin-block-start: 1.25rem;
+    color: var(--color-ink-soft);
+    max-inline-size: 60ch;
+  }
+
+  .flavors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    list-style: none;
+  }
+
+  .flavor {
+    padding-inline: 1rem;
+    padding-block: 0.5rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+  }
+
+  .addons {
+    display: grid;
+    gap: 1rem;
+    list-style: none;
+  }
+
+  .addon {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.25rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+  }
+
+  .addon__name {
+    font-size: var(--text-lg);
+  }
+
+  .addon__desc {
+    margin-block-start: 0.375rem;
+    color: var(--color-ink-soft);
+  }
+
+  .addon__price {
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .closing {
+    max-inline-size: 46ch;
+  }
+
+  .closing__title {
+    font-size: var(--text-3xl);
+  }
+
+  .closing__text {
+    margin-block: 0.875rem 2rem;
+    color: var(--color-ink-soft);
+    font-size: var(--text-lg);
+  }
+
+  @media (min-width: 48rem) {
+    .intro {
+      padding-block: 3.5rem 2.5rem;
+    }
+
+    .gallery {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .gallery__img--lead {
+      grid-column: span 2;
+      grid-row: span 2;
+      aspect-ratio: 1 / 1;
+    }
+  }
+</style>

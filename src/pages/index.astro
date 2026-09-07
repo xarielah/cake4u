@@ -1,11 +1,221 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Button from "../components/Button.astro";
+import CategoryCarousel from "../components/CategoryCarousel.astro";
+import CtaBanner from "../components/CtaBanner.astro";
+import Section from "../components/Section.astro";
+import Steps from "../components/Steps.astro";
+import Testimonials from "../components/Testimonials.astro";
+import { generalInquiryUrl } from "../lib/whatsapp";
+import {
+  getBusiness,
+  getCategories,
+  getHome,
+  getTestimonials,
+} from "../lib/content";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const business = await getBusiness();
+const home = await getHome();
+const categories = await getCategories();
+const testimonials = await getTestimonials();
+const ctaHref = generalInquiryUrl(business.whatsappNumber, business.ownerName);
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout>
+  <section class="hero">
+    <div class="wrap hero__inner">
+      <div class="hero__content">
+        <p class="hero__eyebrow">{home.hero.eyebrow}</p>
+        <h1 class="hero__title">{home.hero.title}</h1>
+        <p class="hero__lead">{home.hero.subtitle}</p>
+
+        <div class="hero__actions">
+          <Button class="hero__cta" variant="whatsapp" external href={ctaHref}
+            >{home.hero.ctaLabel}</Button
+          >
+          <Button href="/pricing" variant="ghost"
+            >{home.hero.secondaryCtaLabel}</Button
+          >
+        </div>
+
+        <p class="hero__note">
+          זמן התראה: <span class="num">{business.minLeadTimeDays}</span> ימים לפחות
+          ·
+          {business.kashrut.status} · משלוח ל{
+            business.deliveryAreas.slice(0, 3).join(", ")
+          } ועוד
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <Section
+    id="categories"
+    title={home.sections.categoriesTitle}
+    lead={home.sections.categoriesLead}
+  >
+    <div class="cat-rows">
+      {
+        categories.map((category, i) => (
+          <CategoryCarousel category={category} eager={i === 0} />
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section tone="deep">
+    <div class="closing">
+      <div>
+        <h2 class="closing__title">אני זמינה לשאלות!</h2>
+        <span
+          >לכל שאלה, בירור או בקשה, אני זמינה בווטסאפ כדי לסייע לכם בבחירת המתוק
+          שמתאים לכם.</span
+        >
+      </div>
+      <Button href={ctaHref} variant="whatsapp" external>לשליחת הודעה</Button>
+    </div>
+  </Section>
+
+  <Section title={home.sections.testimonialsTitle}>
+    <Testimonials testimonials={testimonials} />
+  </Section>
+
+  <Section
+    tone="deep"
+    title={home.sections.stepsTitle}
+    lead={home.sections.stepsLead}
+  >
+    <Steps steps={home.steps} />
+  </Section>
+
+  <CtaBanner
+    title={home.finalCta.title}
+    text={home.finalCta.text}
+    buttonLabel={home.finalCta.buttonLabel}
+    href="/order"
+  />
+
+  <style>
+    .closing {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .closing__title {
+      font-size: var(--text-3xl);
+    }
+
+    .closing__text {
+      margin-block: 0.875rem 2rem;
+      color: var(--color-ink-soft);
+      font-size: var(--text-lg);
+    }
+
+    @media (max-width: 48rem) {
+      .closing {
+        flex-direction: column;
+        text-align: center;
+        max-inline-size: 46ch;
+        margin: 0 auto;
+        gap: 1rem;
+      }
+    }
+    .hero {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      padding-block: 2.5rem 3rem;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-image:
+        linear-gradient(rgba(250, 247, 242, 1), rgba(250, 247, 242, 0.65)),
+        url("../assets/hero-bg.jpg");
+      background-size: cover;
+      background-position: center;
+    }
+
+    .hero__inner {
+      gap: 2rem;
+    }
+
+    .hero__eyebrow {
+      color: var(--color-accent);
+      font-weight: 600;
+    }
+
+    .hero__cta {
+      display: flex;
+      justify-content: center;
+      margin-block-start: 2rem;
+    }
+
+    .hero__title {
+      margin-block-start: 0.75rem;
+      font-size: var(--text-4xl);
+      max-inline-size: 20ch;
+    }
+
+    .hero__lead {
+      margin-block-start: 1.125rem;
+      max-inline-size: 46ch;
+      color: var(--color-ink-soft);
+      font-size: var(--text-lg);
+    }
+    .hero__actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-block-start: 2rem;
+    }
+
+    .hero__note {
+      margin-block-start: 1.5rem;
+      color: var(--color-ink-soft);
+      font-size: 0.9375rem;
+    }
+
+    .hero__img {
+      inline-size: 100%;
+      block-size: auto;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: var(--radius-card);
+    }
+
+    .cards {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 48rem) {
+      .hero {
+        padding-block: 4rem 4.5rem;
+      }
+
+      .hero__inner {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        gap: 3rem;
+      }
+
+      .hero__title {
+        font-size: var(--text-5xl);
+      }
+
+      .cards {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</BaseLayout>

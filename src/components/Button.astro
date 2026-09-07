@@ -1,0 +1,62 @@
+---
+import WhatsAppIcon from './WhatsAppIcon.astro';
+
+interface Props {
+  href: string;
+  variant?: 'primary' | 'ghost' | 'whatsapp';
+  /** קישור חיצוני נפתח בחלון חדש ומקבל הבהרה לקוראי מסך */
+  external?: boolean;
+  class?: string;
+}
+
+const { href, variant = 'primary', external = false, class: className } = Astro.props;
+---
+
+<a
+  class:list={['btn', `btn--${variant}`, className]}
+  href={href}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener noreferrer' : undefined}
+>
+  {variant === 'whatsapp' && <WhatsAppIcon size={20} />}
+  <span><slot /></span>
+  {external && <span class="sr-only">(נפתח בחלון חדש)</span>}
+</a>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-block-size: 48px;
+    padding-inline: 1.5rem;
+    padding-block: 0.625rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn--primary,
+  .btn--whatsapp {
+    background-color: var(--color-accent);
+    color: #fff;
+  }
+
+  .btn--primary:hover,
+  .btn--whatsapp:hover {
+    background-color: var(--color-accent-deep);
+  }
+
+  .btn--ghost {
+    border: 1px solid var(--color-line);
+    color: var(--color-ink);
+  }
+
+  .btn--ghost:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+</style>

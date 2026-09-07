@@ -1,0 +1,68 @@
+{
+  "businessName": "CakeForYou",
+  "ownerName": "איריס",
+  "logo": "../assets/logo.png",
+  "whatsappNumber": "972501234567",
+  "phoneDisplay": "050-123-4567",
+  "city": "עפולה",
+  "region": "עמק יזרעאל",
+  "deliveryAreas": [
+    "עפולה",
+    "מגדל העמק",
+    "נוף הגליל",
+    "רמת ישי",
+    "יקנעם עילית",
+    "כפר תבור",
+    "בית שאן"
+  ],
+  "pickupNote": "איסוף עצמי מעפולה בתיאום מראש, ללא עלות.",
+  "deliveryNote": "משלוח בתשלום ליישובי עמק יזרעאל והסביבה, לפי מרחק.",
+  "minLeadTimeDays": 7,
+  "customLeadTimeDays": 14,
+  "minOrderIls": 250,
+  "kashrut": {
+    "status": "כשר",
+    "hasCertificate": false,
+    "detail": "המטבח ביתי וכשר: חומרי הגלם כשרים, ואין במטבח בשר. אין תעודת כשרות רשמית, ולכן אין באפשרותי לספק לאירועים שדורשים השגחה."
+  },
+  "allergens": {
+    "statement": "כל המוצרים נאפים במטבח ביתי אחד. גם כשמוצר מסוים אינו מכיל אלרגן, ייתכן זיהום צולב. אם יש אלרגיה משמעותית, חשוב לציין זאת בהודעה לפני ההזמנה.",
+    "mayContain": [
+      "גלוטן",
+      "ביצים",
+      "חלב",
+      "אגוזים",
+      "בוטנים",
+      "שומשום",
+      "סויה"
+    ]
+  },
+  "social": {
+    "instagram": "https://www.instagram.com/cake4u",
+    "instagramHandle": "@cake4u",
+    "facebook": ""
+  },
+  "hours": {
+    "display": "ראשון–חמישי 9:00–19:00 · שישי 9:00–13:00",
+    "schema": [
+      {
+        "days": [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday"
+        ],
+        "opens": "09:00",
+        "closes": "19:00"
+      },
+      {
+        "days": [
+          "Friday"
+        ],
+        "opens": "09:00",
+        "closes": "13:00"
+      }
+    ]
+  }
+}

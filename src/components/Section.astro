@@ -1,0 +1,59 @@
+---
+interface Props {
+  id?: string;
+  title?: string;
+  lead?: string;
+  /** רקע — deep נותן הפרדה עדינה בין מקטעים */
+  tone?: "cream" | "deep";
+  /** כותרת המקטע כרמה 2 היא ברירת המחדל; אפשר לשנות כדי לשמור היררכיה */
+  headingLevel?: 2 | 3;
+}
+
+const { id, title, lead, tone = "cream", headingLevel = 2 } = Astro.props;
+const Heading = `h${headingLevel}` as "h2" | "h3";
+---
+
+<section id={id} class:list={["section", `section--${tone}`]}>
+  <div class="wrap">
+    {
+      (title || lead) && (
+        <header class="section__head">
+          {title && <Heading class="section__title">{title}</Heading>}
+          {lead && <p class="section__lead">{lead}</p>}
+        </header>
+      )
+    }
+    <slot />
+  </div>
+</section>
+
+<style>
+  .section {
+    padding-block: var(--spacing-section);
+  }
+
+  .section--deep {
+    background-color: var(--color-cream-deep);
+  }
+
+  .section__head {
+    text-align: center;
+    margin-block-end: 2.5rem;
+  }
+
+  .section__title {
+    font-size: var(--text-3xl);
+  }
+
+  .section__lead {
+    margin-block-start: 0.875rem;
+    color: var(--color-ink-soft);
+    font-size: var(--text-lg);
+  }
+
+  /* @media (min-width: 48rem) {
+    .section {
+      padding-block: var(--spacing-section-lg);
+    }
+  } */
+</style>
