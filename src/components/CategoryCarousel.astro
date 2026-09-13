@@ -194,26 +194,29 @@ const slides = [
   }
 
   .carousel__dot {
-    inline-size: 8px;
-    block-size: 8px;
+    inline-size: 44px;
+    block-size: 44px;
     padding: 0;
     border: 0;
     border-radius: 999px;
-    background-color: var(--color-line);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
     cursor: pointer;
+  }
+
+  /* נקודה ויזואלית קטנה בתוך יעד מגע 44px */
+  .carousel__dot::after {
+    content: "";
+    inline-size: 8px;
+    block-size: 8px;
+    border-radius: 999px;
+    background-color: var(--color-line);
     transition: background-color 0.15s ease;
   }
 
-  /* יעד מגע 44px בלי להגדיל את הנקודה עצמה */
-  .carousel__dot::before {
-    content: "";
-    display: block;
-    inline-size: 44px;
-    block-size: 44px;
-    margin: -18px;
-  }
-
-  .carousel__dot[aria-current="true"] {
+  .carousel__dot[aria-current="true"]::after {
     background-color: var(--color-accent);
   }
 

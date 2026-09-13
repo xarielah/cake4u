@@ -19,8 +19,8 @@ export const settings = {
   },
 
   seo: {
-    /** TODO: הדומיין הסופי, בלי / בסוף */
-    url: 'https://cake4u.co.il',
+    /** דומיין חי נוכחי (Vercel). להחליף ל-https://cake4u.co.il בזמן cutover */
+    url: 'https://cake4u-eight.vercel.app',
     titleTemplate: '%s | CakeForYou',
     defaultTitle: 'עוגות מעוצבות וקינוחים בעפולה | CakeForYou',
     defaultDescription:

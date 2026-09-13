@@ -9,7 +9,7 @@ export default defineConfig({
   // SSG בלבד. אין שרת, אין DB. ראה CLAUDE.md סעיף 2.
   output: 'static',
   site: settings.seo.url,
-  trailingSlash: 'ignore',
+  trailingSlash: 'never',
 
   integrations: [sitemap()],
 
