@@ -18,10 +18,7 @@ interface Props {
   noindex?: boolean;
   /** JSON-LD נוסף ספציפי לעמוד (Product, FAQPage וכו') */
   schema?: Record<string, unknown>;
-  /**
-   * כפתור הוואטסאפ הצף. מכובה בעמוד ההזמנה:
-   * שם הוא מסתיר שדות טופס ומתחרה ב-CTA האמיתי.
-   */
+  /** כפתור הוואטסאפ הצף */
   whatsappFloat?: boolean;
 }
 
@@ -52,7 +49,6 @@ const businessSchema = {
   url: settings.seo.url,
   telephone: `+${business.whatsappNumber}`,
   image: ogImageUrl,
-  priceRange: '₪₪',
   address: {
     '@type': 'PostalAddress',
     addressLocality: business.city,
@@ -60,12 +56,6 @@ const businessSchema = {
     addressCountry: 'IL',
   },
   areaServed: business.deliveryAreas.map((area) => ({ '@type': 'City', name: area })),
-  openingHoursSpecification: business.hours.schema.map((slot) => ({
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: slot.days,
-    opens: slot.opens,
-    closes: slot.closes,
-  })),
   sameAs: [business.social.instagram, business.social.facebook].filter(Boolean),
 };
 ---

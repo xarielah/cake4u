@@ -22,9 +22,6 @@ const whatsappNumber = z
     "מספר וואטסאפ חייב להיות בפורמט בינלאומי, ספרות בלבד, בלי + ובלי 0 מוביל. לדוגמה: 050-123-4567 => 972501234567",
   );
 
-/** מחיר בשקלים — מספר שלם, לא מחרוזת, כדי שאפשר יהיה לחשב ולהציג אחיד */
-const priceIls = z.number().int().positive("מחיר חייב להיות מספר חיובי בשקלים");
-
 /**
  * 1) siteConfig — קובץ יחיד עם עובדות העסק.
  * הפרסר עוטף את האובייקט ברשומה אחת בשם 'site'.
@@ -81,35 +78,12 @@ const siteConfig = defineCollection({
         facebook: z.url().or(z.literal("")),
       }),
 
-      /** זמני מענה בוואטסאפ — לא שעות פתיחה של חנות */
-      hours: z.object({
-        display: z.string().min(5),
-        schema: z
-          .array(
-            z.object({
-              days: z.array(
-                z.enum([
-                  "Sunday",
-                  "Monday",
-                  "Tuesday",
-                  "Wednesday",
-                  "Thursday",
-                  "Friday",
-                  "Saturday",
-                ]),
-              ),
-              opens: z.string().regex(/^\d{2}:\d{2}$/),
-              closes: z.string().regex(/^\d{2}:\d{2}$/),
-            }),
-          )
-          .min(1),
-      }),
     }),
 });
 
 /**
  * 2) categories — קטגוריות המוצרים. קובץ JSON אחד לכל קטגוריה.
- * כל קטגוריה מקבלת עמוד משלה, ולכן גם סכמת Product עם priceRange.
+ * כל קטגוריה מקבלת עמוד משלה. מחירים לא מוצגים באתר — שיחה בוואטסאפ/אינסטגרם.
  */
 const categories = defineCollection({
   loader: glob({ pattern: "**/*.json", base: "./src/content/categories" }),
@@ -129,35 +103,7 @@ const categories = defineCollection({
         /** תיאור מלא לעמוד הקטגוריה */
         description: z.string().min(40),
 
-        /** מחיר "החל מ-" — לא מחיר לכל פריט (CLAUDE.md סעיף 3) */
-        priceFrom: priceIls,
-
-        /**
-         * טבלת מחירים לפי מספר מנות. מעגנת ציפיות ומעלה ערך הזמנה:
-         * לקוח שרואה שההפרש בין 20 ל-30 מנות קטן, מזמין יותר.
-         */
-        priceTable: z
-          .array(
-            z.object({
-              servings: z.number().int().positive(),
-              price: priceIls,
-            }),
-          )
-          .min(2)
-          .refine(
-            (rows) =>
-              rows.every(
-                (row, i) => i === 0 || row.servings > rows[i - 1]!.servings,
-              ),
-            "טבלת המחירים חייבת להיות מסודרת לפי מספר מנות בסדר עולה",
-          )
-          .refine(
-            (rows) =>
-              rows.every((row, i) => i === 0 || row.price > rows[i - 1]!.price),
-            "מחיר לכמות גדולה יותר לא יכול להיות נמוך יותר",
-          ),
-
-        /** טעמים אפשריים — מוצגים כרשימה, ונכנסים לבחירה בטופס ההזמנה */
+        /** טעמים אפשריים — מוצגים כרשימה בעמוד הקטגוריה */
         flavors: z.array(z.string().min(2)).min(1),
 
         /** תמונת קאבר. אופציונלית — בלעדיה מוצג פלייסהולדר ולא נשבר כלום */
@@ -194,17 +140,15 @@ const categories = defineCollection({
 });
 
 /**
- * 3) addons — תוספות במחיר קבוע. מנוף ישיר לערך ההזמנה הממוצע.
+ * 3) addons — תוספות אפשריות (בלי מחיר ציבורי; תיאום בשיחה).
  */
 const addons = defineCollection({
   loader: file("src/content/addons.json"),
   schema: z.object({
     name: z.string().min(2),
-    /** מחיר קבוע בשקלים */
-    price: priceIls,
     /** הסבר קצר — מה הלקוח מקבל */
     description: z.string().min(10),
-    /** להצגה כברירת מחדל בטופס ההזמנה */
+    /** להדגשה ברשימה */
     featured: z.boolean().default(false),
     /** רלוונטי רק לקטגוריות מסוימות. ריק = מתאים לכולן */
     categories: z.array(reference("categories")).default([]),

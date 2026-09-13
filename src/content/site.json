@@ -2,8 +2,8 @@
   "businessName": "CakeForYou",
   "ownerName": "איריס",
   "logo": "../assets/logo.png",
-  "whatsappNumber": "972501234567",
-  "phoneDisplay": "050-123-4567",
+  "whatsappNumber": "972509524233",
+  "phoneDisplay": "050-952-4233",
   "city": "עפולה",
   "region": "עמק יזרעאל",
   "deliveryAreas": [
@@ -26,7 +26,7 @@
     "detail": "המטבח ביתי וכשר: חומרי הגלם כשרים, ואין במטבח בשר. אין תעודת כשרות רשמית, ולכן אין באפשרותי לספק לאירועים שדורשים השגחה."
   },
   "allergens": {
-    "statement": "כל המוצרים נאפים במטבח ביתי אחד. גם כשמוצר מסוים אינו מכיל אלרגן, ייתכן זיהום צולב. אם יש אלרגיה משמעותית, חשוב לציין זאת בהודעה לפני ההזמנה.",
+    "statement": "כל המוצרים נאפים במטבח ביתי אחד. גם כשמוצר מסוים אינו מכיל אלרגן, ייתכן זיהום צולב. אם יש אלרגיה משמעותית, חשוב לציין זאת בהודעה לפני שמתקדמים.",
     "mayContain": [
       "גלוטן",
       "ביצים",
@@ -38,31 +38,8 @@
     ]
   },
   "social": {
-    "instagram": "https://www.instagram.com/cake4u",
-    "instagramHandle": "@cake4u",
+    "instagram": "https://www.instagram.com/cake4you.1/",
+    "instagramHandle": "@cake4you.1",
     "facebook": ""
-  },
-  "hours": {
-    "display": "ראשון–חמישי 9:00–19:00 · שישי 9:00–13:00",
-    "schema": [
-      {
-        "days": [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday"
-        ],
-        "opens": "09:00",
-        "closes": "19:00"
-      },
-      {
-        "days": [
-          "Friday"
-        ],
-        "opens": "09:00",
-        "closes": "13:00"
-      }
-    ]
   }
 }
