@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="CakeForYou">
+  <rect width="32" height="32" rx="8" fill="#faf7f2"/>
+  <path d="M8 18h16l-1.5 8H9.5L8 18Z" fill="#c45c7a"/>
+  <path d="M10 18c0-4 2.5-7 6-7s6 3 6 7" fill="#f3d6de"/>
+  <circle cx="16" cy="10" r="2" fill="#c45c7a"/>
+</svg>

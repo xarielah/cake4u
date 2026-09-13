@@ -30,6 +30,10 @@ const waHref = generalInquiryUrl(business.whatsappNumber, business.ownerName);
 /** זמן ההתראה של הקטגוריה, ואם לא הוגדר — ברירת המחדל של העסק */
 const leadTimeDays = data.leadTimeDays ?? business.minLeadTimeDays;
 
+/** SEO title/meta can carry city; visible H1 stays product-only */
+const seoTitle = `${data.name} בעפולה`;
+const seoDescription = `${data.shortDescription} הגשה והתאמה אישית בעפולה ובעמק יזרעאל.`;
+
 /** Schema.org Product בלי טווח מחירים ציבורי */
 const productSchema = {
   '@context': 'https://schema.org',
@@ -47,7 +51,7 @@ const productSchema = {
 };
 ---
 
-<BaseLayout title={data.name} description={data.shortDescription} schema={productSchema}>
+<BaseLayout title={seoTitle} description={seoDescription} schema={productSchema}>
   <article>
     <div class="wrap intro">
       <nav class="crumbs" aria-label="מסלול ניווט">
