@@ -27,9 +27,6 @@ const business = await getBusiness();
 const addons = await getAddonsForCategory(category.id);
 const waHref = generalInquiryUrl(business.whatsappNumber, business.ownerName);
 
-/** זמן ההתראה של הקטגוריה, ואם לא הוגדר — ברירת המחדל של העסק */
-const leadTimeDays = data.leadTimeDays ?? business.minLeadTimeDays;
-
 /** SEO title/meta can carry city; visible H1 stays product-only */
 const seoTitle = `${data.name} בעפולה`;
 const seoDescription = `${data.shortDescription} הגשה והתאמה אישית בעפולה ובעמק יזרעאל.`;
@@ -65,16 +62,16 @@ const productSchema = {
 
       <dl class="facts">
         <div class="fact">
-          <dt>זמן התראה</dt>
-          <dd><span class="num">{leadTimeDays}</span> ימים לפחות</dd>
-        </div>
-        <div class="fact">
           <dt>כשרות</dt>
           <dd>{business.kashrut.status}</dd>
         </div>
         <div class="fact">
           <dt>אזור</dt>
           <dd>{business.city} ו{business.region}</dd>
+        </div>
+        <div class="fact">
+          <dt>תיאום</dt>
+          <dd>זמנים, איסוף ומשלוח — בוואטסאפ</dd>
         </div>
       </dl>
 

@@ -15,11 +15,8 @@
     "כפר תבור",
     "בית שאן"
   ],
-  "pickupNote": "איסוף עצמי מעפולה בתיאום מראש, ללא עלות.",
-  "deliveryNote": "משלוח בתשלום ליישובי עמק יזרעאל והסביבה, לפי מרחק.",
-  "minLeadTimeDays": 7,
-  "customLeadTimeDays": 14,
-  "minOrderIls": 250,
+  "pickupNote": "איסוף עצמי מעפולה — בתיאום בוואטסאפ.",
+  "deliveryNote": "משלוח ליישובי עמק יזרעאל והסביבה — פרטים ותיאום בוואטסאפ.",
   "kashrut": {
     "status": "כשר",
     "hasCertificate": false,

@@ -50,12 +50,8 @@ const siteConfig = defineCollection({
       pickupNote: z.string().min(5),
       deliveryNote: z.string().min(5),
 
-      /** זמן התראה מינימלי בימים — מסנן פונים לרגע האחרון */
-      minLeadTimeDays: z.number().int().positive(),
-      /** עוגות מעוצבות מורכבות דורשות יותר */
-      customLeadTimeDays: z.number().int().positive(),
-      /** סכום הזמנה מינימלי. 0 = אין מינימום */
-      minOrderIls: z.number().int().nonnegative(),
+      /** סכום הזמנה מינימלי. 0 = אין מינימום. אופציונלי — לא מוצג כברירת מחדל */
+      minOrderIls: z.number().int().nonnegative().optional(),
 
       kashrut: z.object({
         status: z.enum(["כשר", "כשר למהדרין", "ללא כשרות"]),
@@ -125,9 +121,6 @@ const categories = defineCollection({
             }),
           )
           .default([]),
-
-        /** דורש יותר זמן מברירת המחדל? להשאיר ריק כדי לרשת מ-siteConfig */
-        leadTimeDays: z.number().int().positive().optional(),
 
         /** סדר תצוגה — קטן יותר מופיע קודם */
         order: z.number().int().nonnegative(),
