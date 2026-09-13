@@ -1,6 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="CakeForYou">
-  <rect width="32" height="32" rx="8" fill="#faf7f2"/>
-  <path d="M8 18h16l-1.5 8H9.5L8 18Z" fill="#c45c7a"/>
-  <path d="M10 18c0-4 2.5-7 6-7s6 3 6 7" fill="#f3d6de"/>
-  <circle cx="16" cy="10" r="2" fill="#c45c7a"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Cake4You">
+  <defs>
+    <linearGradient id="ganache" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a2c22"/>
+      <stop offset="100%" stop-color="#2a1812"/>
+    </linearGradient>
+    <linearGradient id="sponge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6b3a28"/>
+      <stop offset="100%" stop-color="#4a2418"/>
+    </linearGradient>
+    <linearGradient id="pink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff6b8a"/>
+      <stop offset="100%" stop-color="#e84a6f"/>
+    </linearGradient>
+  </defs>
+  <!-- cream tile -->
+  <rect width="64" height="64" rx="14" fill="#FAF7F2"/>
+  <!-- cake plate shadow -->
+  <ellipse cx="32" cy="52" rx="18" ry="3.5" fill="#2a2320" opacity="0.08"/>
+  <!-- cake body (triangle-ish slice) -->
+  <path d="M18 46 L32 18 L46 46 Z" fill="url(#sponge)"/>
+  <!-- cream layer -->
+  <path d="M22.5 36.5 L32 24.5 L41.5 36.5 Z" fill="#f3e6d8"/>
+  <!-- top ganache -->
+  <path d="M24 30 L32 18 L40 30 Q36 33 32 31 Q28 33 24 30 Z" fill="url(#ganache)"/>
+  <!-- drips -->
+  <path d="M26 29 Q25.5 34 26.5 37 Q27.5 34 27 29 Z" fill="url(#ganache)"/>
+  <path d="M37 29 Q36.2 35 37.5 38 Q38.8 34 38 29 Z" fill="url(#ganache)"/>
+  <!-- whipped cream swirl -->
+  <circle cx="30" cy="22" r="3.2" fill="#fff8f0"/>
+  <circle cx="33.5" cy="20.5" r="2.4" fill="#fff"/>
+  <!-- strawberry -->
+  <path d="M34 14 C36.8 14 38.5 16.2 38.5 18.2 C38.5 20.8 36.2 23 34 24.2 C31.8 23 29.5 20.8 29.5 18.2 C29.5 16.2 31.2 14 34 14 Z" fill="#e0233c"/>
+  <path d="M32.2 14.3 L34 12.2 L35.8 14.3" fill="none" stroke="#3f7a3a" stroke-width="1.4" stroke-linecap="round"/>
+  <circle cx="33.2" cy="17.2" r="0.45" fill="#7a1018" opacity="0.55"/>
+  <circle cx="35" cy="18.4" r="0.45" fill="#7a1018" opacity="0.55"/>
+  <circle cx="34.2" cy="19.8" r="0.4" fill="#7a1018" opacity="0.55"/>
+  <!-- brand accent heart (logo pink) -->
+  <path d="M50 44 C50 42.2 51.4 41 52.8 41 C53.7 41 54.5 41.4 55 42.1 C55.5 41.4 56.3 41 57.2 41 C58.6 41 60 42.2 60 44 C60 46.8 55 50.2 55 50.2 C55 50.2 50 46.8 50 44 Z" fill="url(#pink)"/>
 </svg>
