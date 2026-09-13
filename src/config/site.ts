@@ -3,10 +3,10 @@
  *  הגדרות תצוגה — קוד, לא תוכן.
  * ============================================================
  *  כאן יושב רק מה ששייך למבנה האתר ולא לעובדות העסק:
- *  ניווט, תבניות SEO, מזהי אינטגרציות ואפשרויות הבחירה בטופס.
+ *  ניווט, תבניות SEO ומזהי אינטגרציות.
  *
  *  ⛔ עובדות העסק — שם, טלפון, אזורי משלוח, כשרות, אלרגנים,
- *     שעות, סושיאל — נמצאות ב-src/content/site.json בלבד.
+ *     סושיאל — נמצאות ב-src/content/site.json בלבד.
  *     אין שדה שמופיע בשני המקומות.
  * ============================================================
  */
@@ -22,9 +22,9 @@ export const settings = {
     /** TODO: הדומיין הסופי, בלי / בסוף */
     url: 'https://cake4u.co.il',
     titleTemplate: '%s | CakeForYou',
-    defaultTitle: 'CakeForYou — קונדיטוריה ביתית בעפולה ובעמק יזרעאל',
+    defaultTitle: 'עוגות מעוצבות וקינוחים בעפולה | CakeForYou',
     defaultDescription:
-      'עוגות מעוצבות, עוגות יום הולדת וקינוחים לאירועים — אפייה ביתית מחומרי גלם אמיתיים, בהזמנה אישית.',
+      'עוגות מעוצבות וקינוחים בעפולה ובעמק יזרעאל — אפייה ביתית בהזמנה אישית. דברו איתי בוואטסאפ או באינסטגרם.',
     /** תמונת שיתוף ברשתות. מומלץ 1200x630 בתיקיית public */
     ogImage: '/og-default.jpg',
     locale: 'he_IL',
@@ -32,12 +32,11 @@ export const settings = {
 
   /** תפריט הניווט הראשי */
   nav: [
-    { label: 'דף הבית', href: '/' },
-    { label: 'מי אנחנו', href: '/about' },
-    { label: 'העוגות שלנו', href: '/faq' },
-    { label: 'עוגות מיוחדות', href: '/about' },
-    { label: 'עוגות לאירועים', href: '/about' },
-    { label: 'יצירת קשר', href: '/about' },
+    { label: 'בית', href: '/' },
+    { label: 'עוגות מעוצבות', href: '/categories/celebration-cakes' },
+    { label: 'קינוחים', href: '/categories/dessert-trays' },
+    { label: 'אודות', href: '/about' },
+    { label: 'שאלות', href: '/faq' },
   ],
 
   /** קישורים משפטיים — מופיעים בפוטר בלבד */
@@ -55,20 +54,6 @@ export const settings = {
   behold: {
     feedId: '',
     maxItems: 12,
-  },
-
-  /** אפשרויות הבחירה בטופס ההזמנה. הטופס הוא כלי סינון. */
-  orderForm: {
-    /** כמה מנות / אורחים */
-    guestCounts: ['עד 10', '10–20', '20–40', '40–80', '80+'],
-    budgetRanges: [
-      { value: 'עד 300 ₪', tooLow: true },
-      { value: '300–500 ₪', tooLow: false },
-      { value: '500–900 ₪', tooLow: false },
-      { value: '900–1,500 ₪', tooLow: false },
-      { value: 'מעל 1,500 ₪', tooLow: false },
-      { value: 'עדיין לא יודעת/ע', tooLow: false },
-    ],
   },
 } as const;
 

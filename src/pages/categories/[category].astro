@@ -3,10 +3,10 @@ import type { GetStaticPaths } from 'astro';
 import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Button from '../../components/Button.astro';
-import PriceTable from '../../components/PriceTable.astro';
 import Section from '../../components/Section.astro';
 import { settings } from '../../config/site';
 import { getAddonsForCategory, getBusiness, getCategories, type Category } from '../../lib/content';
+import { generalInquiryUrl } from '../../lib/whatsapp';
 
 export const getStaticPaths = (async () => {
   const categories = await getCategories();
@@ -25,15 +25,12 @@ const { data } = category;
 
 const business = await getBusiness();
 const addons = await getAddonsForCategory(category.id);
+const waHref = generalInquiryUrl(business.whatsappNumber, business.ownerName);
 
 /** זמן ההתראה של הקטגוריה, ואם לא הוגדר — ברירת המחדל של העסק */
 const leadTimeDays = data.leadTimeDays ?? business.minLeadTimeDays;
 
-const prices = data.priceTable.map((row) => row.price);
-const lowPrice = Math.min(...prices);
-const highPrice = Math.max(...prices);
-
-/** Schema.org Product עם טווח מחירים (CLAUDE.md סעיף 6) */
+/** Schema.org Product בלי טווח מחירים ציבורי */
 const productSchema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
@@ -42,12 +39,10 @@ const productSchema = {
   url: new URL(`/categories/${data.slug}`, Astro.site ?? settings.seo.url).href,
   brand: { '@type': 'Brand', name: business.businessName },
   offers: {
-    '@type': 'AggregateOffer',
-    priceCurrency: 'ILS',
-    lowPrice,
-    highPrice,
+    '@type': 'Offer',
     availability: 'https://schema.org/InStock',
     seller: { '@id': `${settings.seo.url}/#business` },
+    url: new URL(`/categories/${data.slug}`, Astro.site ?? settings.seo.url).href,
   },
 };
 ---
@@ -66,12 +61,6 @@ const productSchema = {
 
       <dl class="facts">
         <div class="fact">
-          <dt>מחיר</dt>
-          <dd>
-            החל מ-<span class="num">{data.priceFrom.toLocaleString('he-IL')}</span> ₪
-          </dd>
-        </div>
-        <div class="fact">
           <dt>זמן התראה</dt>
           <dd><span class="num">{leadTimeDays}</span> ימים לפחות</dd>
         </div>
@@ -79,11 +68,17 @@ const productSchema = {
           <dt>כשרות</dt>
           <dd>{business.kashrut.status}</dd>
         </div>
+        <div class="fact">
+          <dt>אזור</dt>
+          <dd>{business.city} ו{business.region}</dd>
+        </div>
       </dl>
 
       <div class="intro__actions">
-        <Button href={`/order?category=${data.slug}`}>להזמנת {data.name}</Button>
-        <Button href="/pricing" variant="ghost">למחירון המלא</Button>
+        <Button href={waHref} variant="whatsapp" external>שליחת הודעה בוואטסאפ</Button>
+        <Button href={business.social.instagram} variant="ghost" external>
+          אינסטגרם {business.social.instagramHandle}
+        </Button>
       </div>
     </div>
 
@@ -116,21 +111,6 @@ const productSchema = {
       )
     }
 
-    <Section tone="deep" title="מחירון לפי מספר מנות">
-      <PriceTable rows={data.priceTable} caption={`מחירון ${data.name} לפי מספר מנות`} />
-      <p class="note">
-        המחירים הם לעיצוב סטנדרטי. עיצוב מורכב, קומות נוספות ותוספות מתומחרים בנפרד.
-        {
-          business.minOrderIls > 0 && (
-            <span>
-              {' '}מינימום הזמנה:{' '}
-              <span class="num">{business.minOrderIls.toLocaleString('he-IL')}</span> ₪.
-            </span>
-          )
-        }
-      </p>
-    </Section>
-
     <Section title="טעמים לבחירה">
       <ul class="flavors">
         {data.flavors.map((flavor) => <li class="flavor">{flavor}</li>)}
@@ -148,24 +128,21 @@ const productSchema = {
                   <h3 class="addon__name">{addon.data.name}</h3>
                   <p class="addon__desc">{addon.data.description}</p>
                 </div>
-                <p class="addon__price">
-                  <span class="num">{addon.data.price.toLocaleString('he-IL')}</span> ₪
-                </p>
               </li>
             ))}
           </ul>
+          <p class="note">פרטים ותיאום — בשיחה בוואטסאפ או באינסטגרם.</p>
         </Section>
       )
     }
 
     <Section>
       <div class="closing">
-        <h2 class="closing__title">מוכנים להזמין {data.name}?</h2>
+        <h2 class="closing__title">רוצים {data.name}?</h2>
         <p class="closing__text">
-          שלחו הודעה עם התאריך ומספר האורחים. ההודעה תגיע אליי כשהקטגוריה שבחרתם כבר מסומנת בה,
-          ואחזור עם מחיר וזמינות תוך <span class="num">24</span> שעות.
+          שלחו הודעה עם התאריך ומספר האורחים בוואטסאפ או באינסטגרם — ונמשיך משם יחד.
         </p>
-        <Button href={`/order?category=${data.slug}`}>להזמנת {data.name}</Button>
+        <Button href={waHref} variant="whatsapp" external>שליחת הודעה בוואטסאפ</Button>
       </div>
     </Section>
   </article>
@@ -187,7 +164,6 @@ const productSchema = {
   }
 
   .crumbs a {
-    /* יעד מגע 44px גם לקישור טקסט עצמאי (WCAG 2.5.5) */
     display: inline-flex;
     align-items: center;
     min-block-size: 44px;
@@ -299,11 +275,6 @@ const productSchema = {
   .addon__desc {
     margin-block-start: 0.375rem;
     color: var(--color-ink-soft);
-  }
-
-  .addon__price {
-    font-weight: 800;
-    white-space: nowrap;
   }
 
   .closing {

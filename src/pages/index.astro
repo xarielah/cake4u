@@ -34,7 +34,7 @@ const ctaHref = generalInquiryUrl(business.whatsappNumber, business.ownerName);
           <Button class="hero__cta" variant="whatsapp" external href={ctaHref}
             >{home.hero.ctaLabel}</Button
           >
-          <Button href="/pricing" variant="ghost"
+          <Button href="/categories/celebration-cakes" variant="ghost"
             >{home.hero.secondaryCtaLabel}</Button
           >
         </div>
@@ -93,7 +93,9 @@ const ctaHref = generalInquiryUrl(business.whatsappNumber, business.ownerName);
     title={home.finalCta.title}
     text={home.finalCta.text}
     buttonLabel={home.finalCta.buttonLabel}
-    href="/order"
+    href={ctaHref}
+    variant="whatsapp"
+    external
   />
 
   <style>

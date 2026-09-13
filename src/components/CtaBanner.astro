@@ -6,9 +6,19 @@ interface Props {
   text: string;
   buttonLabel: string;
   href: string;
+  /** קישור חיצוני (וואטסאפ) */
+  external?: boolean;
+  variant?: 'primary' | 'ghost' | 'whatsapp';
 }
 
-const { title, text, buttonLabel, href } = Astro.props;
+const {
+  title,
+  text,
+  buttonLabel,
+  href,
+  external = false,
+  variant = 'primary',
+} = Astro.props;
 ---
 
 <section class="cta">
@@ -17,7 +27,7 @@ const { title, text, buttonLabel, href } = Astro.props;
       <h2 class="cta__title">{title}</h2>
       <p class="cta__text">{text}</p>
     </div>
-    <Button href={href}>{buttonLabel}</Button>
+    <Button href={href} variant={variant} external={external}>{buttonLabel}</Button>
   </div>
 </section>
 

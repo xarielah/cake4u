@@ -91,9 +91,15 @@ const areaLabel = `${business.city} ו${business.region}`;
           ))
         }
         <li>
-          <a class="nav__link nav__link--cta" href={waHref}
-            ><WhatsAppIcon size={24} />להזמנה בווטסאפ</a
+          <a
+            class="nav__link nav__link--cta"
+            href={waHref}
+            target="_blank"
+            rel="noopener noreferrer"
           >
+            <WhatsAppIcon size={24} />
+            וואטסאפ
+          </a>
         </li>
       </ul>
     </nav>
@@ -146,9 +152,14 @@ const areaLabel = `${business.city} ו${business.region}`;
       </ul>
     </nav>
 
-    <a class="stickybar__cta" href="/order">
+    <a
+      class="stickybar__cta"
+      href={waHref}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       <WhatsAppIcon size={18} />
-      <span>להזמנה</span>
+      <span>וואטסאפ</span>
     </a>
   </div>
 </div>
@@ -201,9 +212,14 @@ const areaLabel = `${business.city} ו${business.region}`;
       </ul>
     </nav>
 
-    <a class="menu__cta" href="/order">
+    <a
+      class="menu__cta"
+      href={waHref}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       <WhatsAppIcon size={20} />
-      <span>להזמנה בוואטסאפ</span>
+      <span>שליחת הודעה בוואטסאפ</span>
     </a>
 
     <a class="menu__phone" href={phoneHref}>{business.phoneDisplay}</a>
@@ -678,7 +694,7 @@ const areaLabel = `${business.city} ו${business.region}`;
   .nav__link--cta {
     color: var(--color-accent);
     font-weight: 600;
-    font-size: 0.5rem;
+    font-size: 1rem;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;

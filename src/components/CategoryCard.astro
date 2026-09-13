@@ -36,10 +36,7 @@ const href = `/categories/${data.slug}`;
     <div class="card__body">
       <h3 class="card__title">{data.name}</h3>
       <p class="card__text">{data.shortDescription}</p>
-      <p class="card__price">
-        החל מ-<span class="num">{data.priceFrom.toLocaleString('he-IL')}</span> ₪
-      </p>
-      <span class="card__more" aria-hidden="true">לפרטים ומחירון ←</span>
+      <span class="card__more" aria-hidden="true">לפרטים ←</span>
     </div>
   </a>
 </article>
@@ -88,14 +85,9 @@ const href = `/categories/${data.slug}`;
     color: var(--color-ink-soft);
   }
 
-  .card__price {
-    margin-block-start: 0.875rem;
-    font-weight: 800;
-  }
-
   .card__more {
     display: inline-block;
-    margin-block-start: 0.75rem;
+    margin-block-start: 0.875rem;
     color: var(--color-accent);
     font-weight: 600;
   }
